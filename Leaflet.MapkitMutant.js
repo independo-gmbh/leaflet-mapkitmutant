@@ -18,10 +18,15 @@ L.MapkitMutant = L.Layer.extend({
 		// in [Apple's mapkitJS documentation](https://developer.apple.com/documentation/mapkitjs/mapkit/2974045-init)
 		authorizationCallback: function() {},
 
-		// 🍂option language: string = 'en'
+		// 🍂option language: string
+		// A language code, as described in
+		// [Apple's mapkitJS documentation](https://developer.apple.com/documentation/mapkitjs/mapkit/2974045-init).
+		// By default Mapkit will use the locale setting from the web browser.
 	},
 
 	initialize: function(options) {
+		L.Util.setOptions(this, options);
+
 		/// TODO: Add a this._mapkitPromise, just like GoogleMutant
 
 		mapkit.init({
@@ -43,8 +48,6 @@ L.MapkitMutant = L.Layer.extend({
 	},
 
 	onRemove: function(map) {
-		L.Layer.prototype.onRemove.call(this, map);
-
 		map._container.removeChild(this._mutantContainer);
 		this._mutantContainer = undefined;
 		map.off("move zoom moveend zoomend", this._update, this);
@@ -94,12 +97,15 @@ L.MapkitMutant = L.Layer.extend({
 		});
 
 		this._mutant = map;
+		map.addEventListener("region-change-end", this._onRegionChangeEnd, this);
 
 		// 🍂event spawned
 		// Fired when the mutant has been created.
 		this.fire("spawned", { mapObject: map });
 	},
 
+	// Fetches the map's current bounds and returns an instance of
+	// mapkit.CoordinateRegion
 	_leafletBoundsToMapkitRegion: function() {
 		var bounds = this._map.getBounds();
 		var center = bounds.getCenter();
@@ -113,14 +119,25 @@ L.MapkitMutant = L.Layer.extend({
 		);
 	},
 
+	// Given an instance of mapkit.CoordinateRegion, returns an instance
+	// of Leaflet's LatLngBounds
+	_mapkitRegionToLeafletBounds: function(region) {
+		var minLat = region.center.latitude - region.span.latitudeDelta / 2;
+		var minLng = region.center.longitude - region.span.longitudeDelta / 2;
+		var maxLat = region.center.latitude + region.span.latitudeDelta / 2;
+		var maxLng = region.center.longitude + region.span.longitudeDelta / 2;
+
+		return L.latLngBounds([[minLat, minLng], [maxLat, maxLng]]);
+	},
+
 	_update: function() {
-		if (this._mutant) {
-			console.log(
-				"",
-				this._leafletBoundsToMapkitRegion().toString(),
-				"vs",
-				this._mutant.region
-			);
+		if (this._map && this._mutant) {
+			// 			console.log(
+			// 				"",
+			// 				this._leafletBoundsToMapkitRegion().toString(),
+			// 				"vs",
+			// 				this._mutant.region.toString()
+			// 			);
 
 			this._mutant.setRegionAnimated(
 				this._leafletBoundsToMapkitRegion(),
@@ -138,7 +155,39 @@ L.MapkitMutant = L.Layer.extend({
 			return;
 		this.setElementSize(this._mutantContainer, size);
 		if (!this._mutant) return;
-		// 		google.maps.event.trigger(this._mutant, 'resize');
+	},
+
+	_onRegionChangeEnd: function(ev) {
+		console.log(ev.target.region.toString());
+
+		var bounds = this._mapkitRegionToLeafletBounds(this._mutant.region);
+// 		if (!this.rectangle) {
+// 			this.rectangle = L.rectangle(bounds, {
+// 				fill: false,
+// 			}).addTo(map);
+// 		} else {
+// 			this.rectangle.setBounds(bounds);
+// 		}
+
+		if (!this._mutantCanvas) {
+			this._mutantCanvas = this._mutantContainer.querySelector(
+				"canvas.syrup-canvas"
+			);
+		}
+
+		if (this._mutantCanvas) {
+			var topLeft = this._map.latLngToContainerPoint(bounds.getNorthWest());
+			var size = this._map
+				.latLngToContainerPoint(bounds.getSouthEast())
+				.subtract(topLeft);
+
+			console.log(topLeft, size, this._mutantCanvas);
+
+			this._mutantCanvas.style.top = topLeft.y + "px";
+			this._mutantCanvas.style.height = size.y + "px";
+			this._mutantCanvas.style.left = topLeft.x + "px";
+			this._mutantCanvas.style.width = size.x + "px";
+		}
 	},
 
 	setElementSize: function(e, size) {

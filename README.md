@@ -1,6 +1,6 @@
 # Leaflet.MapkitMutant
 
-A [LeafletJS](http://leafletjs.com/) plugin to use Apple's mapkitJS basemaps.
+A [LeafletJS](http://leafletjs.com/) plugin to use [Apple's mapkitJS](https://developer.apple.com/documentation/mapkitjs) basemaps.
 
 The name comes from [GoogleMutant](https://gitlab.com/IvanSanchez/Leaflet.GridLayer.GoogleMutant). It's catchy, even if MapkitMutant doesn't use DOM mutation observers.
 
@@ -36,14 +36,23 @@ var roads = L.mapkitMutant({
 
 ## Known issues
 
-MapkitJS has a very particular behaviour for very low zoom levels: it will refuse
-to use the given `CoordinateSpan` if that would mean displaying over 90 degrees of
-latitude or so.
+* MapkitJS has a very particular behaviour for very low zoom levels: it will refuse
+to use the given `CoordinateSpan` if that would mean displaying over 180 degrees of
+longitude or so.
 
-In practical terms, this means that users should add `minZoom: 3` to their maps,
-or otherwise expect mapkitJS to display higher-zoom tiles at very low zoom levels.
+  The current workaround is to scale down the size of the MapkitMutant so it overlaps
+the region it reports to cover.
 
+  In practical terms, this means that users should add `minZoom: 3` to their maps.
+Else, users will not see parts of the map as grey.
 
+* Also, this plugin is **only** for the mapkitjs basemaps. It doesn't provide routing, nor search, nor POIs.
+
+* The compass is still seen, even though MapkitMutant's code specifies
+the `showsCompass` option with a value of `false`.
+
+* Visibility and z-index issues. A feature in the TODO is to grab the `syrup-canvas`
+from the mutant and move inside a `L.ImageOverlay`.
 
 ## Legalese
 
