@@ -18,10 +18,13 @@ L.MapkitMutant = L.Layer.extend({
 		// in [Apple's mapkitJS documentation](https://developer.apple.com/documentation/mapkitjs/mapkit/2974045-init)
 		authorizationCallback: function() {},
 
-		// 🍂option language: string
+		// 🍂option language: String = undefined
 		// A language code, as described in
 		// [Apple's mapkitJS documentation](https://developer.apple.com/documentation/mapkitjs/mapkit/2974045-init).
 		// By default Mapkit will use the locale setting from the web browser.
+
+		// 🍂option opacity: Number = 1.0
+        // The opacity of the MapkitMutant
 	},
 
 	initialize: function(options) {
@@ -52,8 +55,15 @@ L.MapkitMutant = L.Layer.extend({
 		this._mutantContainer = undefined;
 		map.off("move zoom moveend zoomend", this._update, this);
 		map.off("resize", this._resize, this);
+        this._mutant.removeEventListener("region-change-end", this._onRegionChangeEnd, this);
+        if (this._canvasOverlay) {
+            this._canvasOverlay.remove();
+        }
+
 	},
 
+    // Create the HTMLElement for the mutant map, and add it as a children
+    // of the Leaflet Map container
 	_initMutantContainer: function() {
 		if (!this._mutantContainer) {
 			this._mutantContainer = L.DomUtil.create(
@@ -74,8 +84,9 @@ L.MapkitMutant = L.Layer.extend({
 		//this._attachObserver(this._mutantContainer);
 	},
 
+    // Create the mutant map inside the mutant container
 	_initMutant: function() {
-		if (/*!this._ready || */ !this._mutantContainer) return;
+		if (!this._mutantContainer) return;
 
 		var mapType = mapkit.Map.MapTypes.Standard;
 		if (this.options.maptype === "hybrid") {
@@ -98,6 +109,7 @@ L.MapkitMutant = L.Layer.extend({
 
 		this._mutant = map;
 		map.addEventListener("region-change-end", this._onRegionChangeEnd, this);
+		map.addEventListener("region-change-start", this._onRegionChangeStart, this);
 
 		// 🍂event spawned
 		// Fired when the mutant has been created.
@@ -158,9 +170,11 @@ L.MapkitMutant = L.Layer.extend({
 	},
 
 	_onRegionChangeEnd: function(ev) {
-		console.log(ev.target.region.toString());
+        console.timeStamp('region-change-end');
 
-		var bounds = this._mapkitRegionToLeafletBounds(this._mutant.region);
+// 		console.log(ev.target.region.toString());
+
+// 		var bounds = this._mapkitRegionToLeafletBounds(this._mutant.region);
 // 		if (!this.rectangle) {
 // 			this.rectangle = L.rectangle(bounds, {
 // 				fill: false,
@@ -175,20 +189,82 @@ L.MapkitMutant = L.Layer.extend({
 			);
 		}
 
-		if (this._mutantCanvas) {
-			var topLeft = this._map.latLngToContainerPoint(bounds.getNorthWest());
-			var size = this._map
-				.latLngToContainerPoint(bounds.getSouthEast())
-				.subtract(topLeft);
+		if (this._map && this._mutantCanvas) {
 
-			console.log(topLeft, size, this._mutantCanvas);
+            var bounds = this._mapkitRegionToLeafletBounds(this._mutant.region);
 
-			this._mutantCanvas.style.top = topLeft.y + "px";
-			this._mutantCanvas.style.height = size.y + "px";
-			this._mutantCanvas.style.left = topLeft.x + "px";
-			this._mutantCanvas.style.width = size.x + "px";
+            L.Util.cancelAnimFrame(this._requestedFrame);
+
+            this._requestedFrame = L.Util.requestAnimFrame(function() {
+                if (!this._canvasOverlay) {
+                    this._canvasOverlay = L.imageOverlay(null, bounds);
+
+                    // Hack the ImageOverlay's _image property so that it doesn't
+                    // create a HTMLImageElement
+    //                 this._canvasOverlay._image = this._mutantCanvas;
+                    var img = this._canvasOverlay._image = L.DomUtil.create('div');
+    //                 img.style.position = 'relative';
+
+                    L.DomUtil.addClass(img, 'leaflet-image-layer');
+                    L.DomUtil.addClass(img, 'leaflet-zoom-animated');
+
+                    // Move the mutant's canvas out of its container, and into
+                    // the L.ImageOverlay's _image
+                    this._mutantCanvas.parentElement.removeChild(this._mutantCanvas);
+                    img.appendChild(this._mutantCanvas);
+
+                    this._canvasOverlay.addTo(this._map);
+                    this._updateOpacity();
+                } else {
+                    this._canvasOverlay.setBounds(bounds);
+                }
+                this._mutantCanvas.style.width = '100%';
+                this._mutantCanvas.style.height = '100%';
+                this._mutantCanvas.style.position = 'absolute';
+
+                if (!this.rectangle) {
+                    this.rectangle = L.rectangle(bounds, {
+                        fill: false,
+                    }).addTo(this._map);
+                } else {
+                    this.rectangle.setBounds(bounds);
+                }
+            }, this);
+
+
+// 			var topLeft = this._map.latLngToContainerPoint(bounds.getNorthWest());
+// 			var size = this._map
+// 				.latLngToContainerPoint(bounds.getSouthEast())
+// 				.subtract(topLeft);
+//
+// 			console.log(topLeft, size, this._mutantCanvas);
+//
+// 			this._mutantCanvas.style.top = topLeft.y + "px";
+// 			this._mutantCanvas.style.height = size.y + "px";
+// 			this._mutantCanvas.style.left = topLeft.x + "px";
+// 			this._mutantCanvas.style.width = size.x + "px";
 		}
 	},
+
+	// 🍂method setOpacity(opacity: Number): this
+	// Sets the opacity of the MapkitMutant.
+	setOpacity: function (opacity) {
+		this.options.opacity = opacity;
+        this._updateOpacity();
+		return this;
+	},
+
+
+    _updateOpacity: function () {
+        if (this._mutantCanvas) {
+            L.DomUtil.setOpacity(this._mutantCanvas, this.options.opacity);
+        }
+	},
+
+    _onRegionChangeStart: function(ev) {
+//         console.timeStamp('region-change-start');
+    },
+
 
 	setElementSize: function(e, size) {
 		e.style.width = size.x + "px";
@@ -199,3 +275,5 @@ L.MapkitMutant = L.Layer.extend({
 L.mapkitMutant = function mapkitMutant(options) {
 	return new L.MapkitMutant(options);
 };
+
+
