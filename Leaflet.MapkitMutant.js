@@ -5,8 +5,6 @@ L.MapkitMutant = L.Layer.extend({
 	options: {
 		minZoom: 3,
 		maxZoom: 23,
-		tileSize: 256,
-		// 		opacity: 1,
 
 		// 🍂option type: String = 'standard'
 		// mapkit's map type. Valid values are strings 'standard' (default),
