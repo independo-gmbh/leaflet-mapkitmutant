@@ -4,6 +4,11 @@ A [LeafletJS](http://leafletjs.com/) plugin to use [Apple's mapkitJS](https://de
 
 The name comes from [GoogleMutant](https://gitlab.com/IvanSanchez/Leaflet.GridLayer.GoogleMutant). It's catchy, even if MapkitMutant doesn't use DOM mutation observers.
 
+There's a [live demo](https://codepen.io/ivansanchez-the-bashful/pen/ZjKqMz?editors=0010),
+but that's not my developer token (I borrowed it from
+[here](https://codepen.io/ping13/pen/xzLOqe). Please do not abuse. Or provide me with
+a fresh developer token.
+
 
 ## Usage
 
@@ -11,8 +16,8 @@ Include the mapkitJS API in your HTML, plus Leaflet:
 
 ```html
 <script src="https://cdn.apple-mapkit.com/mk/5.x.x/mapkit.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.3/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.3.3/dist/leaflet.js"></script>
 ```
 
 Include the MapkitMutant javascript file:
@@ -25,34 +30,51 @@ Then, you can create an instance of `L.GridLayer.MapkitMutant` on your JS code:
 
 ```javascript
 var roads = L.mapkitMutant({
-	type: 'hybrid',	// valid values are 'default', 'satellite' and 'hybrid'
+	// valid values for 'type' are 'default', 'satellite' and 'hybrid'
+	type: 'hybrid',
+
 	authorizationCallback: function(done) {
 		done("Your authorization token goes here")
 	},
-	language: 'en'
+	language: 'en',
+
+	// For debugging purposes only. Displays a L.Rectangle on the
+	// visible bounds ("region") of the mutant.
+	debugRectangle: false
 }).addTo(map);
 ```
 
 
 ## Known issues
 
-* MapkitJS has a very particular behaviour for very low zoom levels: it will refuse
-to use the given `CoordinateSpan` if that would mean displaying over 180 degrees of
-longitude or so.
+* "I only see a rectangle when zooming out"
 
-  The current workaround is to scale down the size of the MapkitMutant so it overlaps
+This happens because MapkitJS has a very particular behaviour for very low
+zoom levels: it will refuse to use the given `CoordinateSpan` if that would
+mean displaying over 180 degrees of longitude or so.
+
+The current workaround is to scale down the size of the MapkitMutant so it overlaps
 the region it reports to cover.
 
-  In practical terms, this means that users should add `minZoom: 3` to their maps.
+In practical terms, this means that users should add `minZoom: 3` to their maps.
 Else, users will not see parts of the map as grey.
 
-* Also, this plugin is **only** for the mapkitjs basemaps. It doesn't provide routing, nor search, nor POIs.
+* "Things have a vertical offset at low zoom levels"
 
-* The compass is still seen, even though MapkitMutant's code specifies
-the `showsCompass` option with a value of `false`.
+This happens because MapkitJS has a weird way of returning the visible bounds
+("region" in mapkitJS parlance) - they don't exactly fit the bounds ("region")
+that was requested before.
 
-* Visibility and z-index issues. A feature in the TODO is to grab the `syrup-canvas`
-from the mutant and move inside a `L.ImageOverlay`.
+There's no workaround for this - I just refuse to calculate their buggy latitude
+offsets. I recommend complaining to the MapkitJS devs so that they get their
+projections right.
+
+
+* "I want routing, and placename search, and traffic, and streetview"
+
+Nope. this plugin is **only** for the mapkitjs basemaps. It doesn't provide
+routing, nor search, nor POIs. If you want that, consider implementing it
+yourself.
 
 ## Legalese
 
