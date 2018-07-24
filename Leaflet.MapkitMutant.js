@@ -106,7 +106,11 @@ L.MapkitMutant = L.Layer.extend({
 			region: this._leafletBoundsToMapkitRegion(),
 			showsUserLocation: false,
 			showsUserLocationControl: false,
-			showsCompass: "hidden", // WTF, apple devs? your docs say this is a boolean!
+
+			// WTF, apple devs? other options are boolean but this is a
+			// `mapkit.FeatureVisibility`. F*ck consistency, amirite?!
+			showsCompass: "hidden",
+
 			showsZoomControl: false,
 			showsUserLocationControl: false,
 			showsScale: false,
