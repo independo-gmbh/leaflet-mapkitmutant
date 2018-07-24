@@ -1,6 +1,6 @@
 {
   "name": "leaflet.mapkitmutant",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "Leaflet.MapkitMutant.js",
   "author": "Iván Sánchez Ortega <ivan@sanchezortega.es>",
   "license": "LGPL",
