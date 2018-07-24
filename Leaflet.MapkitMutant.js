@@ -1,6 +1,5 @@
-// https://cdn.apple-mapkit.com/mk/5.x.x/mapkit.js
-// https://codepen.io/ping13/pen/xzLOqe
-// https://codepen.io/anon/pen/oypNam?editors=0010
+// Leaflet.MapkitMutant - use (Apple's) MapkitJS basemaps in Leaflet.
+// See https://gitlab.com/IvanSanchez/Leaflet.MapkitMutant
 
 L.MapkitMutant = L.Layer.extend({
 	options: {

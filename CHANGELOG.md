@@ -1,4 +1,8 @@
 
+# 0.2.1 (2018-06-24)
+
+* Minor cleanup
+
 # 0.2.0 (2018-06-24)
 
 * Implemented extraction of the mutant's canvas and moving it into a L.ImageOverlay
