@@ -4,10 +4,12 @@ A [LeafletJS](http://leafletjs.com/) plugin to use [Apple's mapkitJS](https://de
 
 The name comes from [GoogleMutant](https://gitlab.com/IvanSanchez/Leaflet.GridLayer.GoogleMutant). It's catchy, even if MapkitMutant doesn't use DOM mutation observers.
 
-There's a [live demo](https://codepen.io/ivansanchez-the-bashful/pen/ZjKqMz?editors=0010),
+There's a [live demo](https://codepen.io/ivansanchez-the-bashful/full/ZjKqMz),
+[code here](https://codepen.io/ivansanchez-the-bashful/pen/ZjKqMz?editors=0010),
 but that's not my developer token (I borrowed it from
-[here](https://codepen.io/ping13/pen/xzLOqe). Please do not abuse. Or provide me with
-a fresh developer token.
+[here](https://codepen.io/ping13/pen/xzLOqe) , made by
+[these folks](https://twitter.com/rastrau/status/1007636978886676481)
+). Please do not abuse. Or provide me with a fresh developer token.
 
 
 ## Usage
@@ -59,7 +61,7 @@ the region it reports to cover.
 In practical terms, this means that users should add `minZoom: 3` to their maps.
 Else, users will not see parts of the map as grey.
 
-* "Things have a vertical offset at low zoom levels"
+* "Things have a vertical offset at low-ish zoom levels"
 
 This happens because MapkitJS has a weird way of returning the visible bounds
 ("region" in mapkitJS parlance) - they don't exactly fit the bounds ("region")
