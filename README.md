@@ -4,8 +4,10 @@ A [LeafletJS](http://leafletjs.com/) plugin to use [Apple's mapkitJS](https://de
 
 The name comes from [GoogleMutant](https://gitlab.com/IvanSanchez/Leaflet.GridLayer.GoogleMutant). It's catchy, even if MapkitMutant doesn't use DOM mutation observers.
 
-I do not have any authorization tokens, so there's no live demo for this.
-(hint hint: somebody please provide me with one)
+I do not have any authorization tokens, so there's no live demo for this
+(hint hint: somebody please provide me with one). Instead, marvel at this gif:
+
+![Leaflet showing the three different mapkitjs map types](demo.gif)
 
 ## Usage
 
