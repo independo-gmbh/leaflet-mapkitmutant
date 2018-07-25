@@ -55,18 +55,9 @@ mean displaying over 180 degrees of longitude or so.
 The current workaround is to scale down the size of the MapkitMutant so it overlaps
 the region it reports to cover.
 
-In practical terms, this means that users should add `minZoom: 3` to their maps.
-Else, users will not see parts of the map as grey.
-
-* "Things have a vertical offset at low-ish zoom levels"
-
-This happens because MapkitJS has a weird way of returning the visible bounds
-("region" in mapkitJS parlance) - they don't exactly fit the bounds ("region")
-that was requested before.
-
-There's no workaround for this - I just refuse to calculate their buggy latitude
-offsets. I recommend complaining to the MapkitJS devs so that they get their
-projections right.
+In practical terms, this means that users should add `minZoom: 3` to their maps
+(or set the `maxBounds` of the map to something less than 180 degrees of longitude,
+or any other similar approach). Else, users will not see parts of the map as grey.
 
 
 * "I want routing, and placename search, and traffic, and streetview"

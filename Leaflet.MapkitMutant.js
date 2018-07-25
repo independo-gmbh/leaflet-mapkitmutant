@@ -103,7 +103,7 @@ L.MapkitMutant = L.Layer.extend({
 		}
 
 		var map = new mapkit.Map(this._mutantContainer, {
-			region: this._leafletBoundsToMapkitRegion(),
+			visibleMapRect: this._leafletBoundsToMapkitRect(),
 			showsUserLocation: false,
 			showsUserLocationControl: false,
 
@@ -131,51 +131,66 @@ L.MapkitMutant = L.Layer.extend({
 		L.Util.requestAnimFrame(this._update, this);
 	},
 
-	// Fetches the map's current bounds and returns an instance of
-	// mapkit.CoordinateRegion
-	_leafletBoundsToMapkitRegion: function() {
-		var bounds = this._map.getBounds();
-		var center = bounds.getCenter();
-		var width = bounds.getEast() - bounds.getWest();
-		var height = bounds.getNorth() - bounds.getSouth();
-		return new mapkit.CoordinateRegion(
-			// Center
-			new mapkit.Coordinate(center.lat, center.lng),
-			// Span
-			new mapkit.CoordinateSpan(height, width)
+	// Fetches the map's current *projected* (EPSG:3857) bounds, and returns
+	// an instance of mapkit.MapRect
+	_leafletBoundsToMapkitRect: function() {
+		var bounds = this._map.getPixelBounds();
+		var scale = this._map.options.crs.scale(this._map.getZoom());
+		var nw = bounds.getTopLeft().divideBy(scale);
+		var se = bounds.getBottomRight().divideBy(scale);
+
+		// Map those bounds into a [[0,0]..[1,1]] range
+		var projectedBounds = L.bounds([nw, se]);
+
+		var projectedCenter = projectedBounds.getCenter();
+		var projectedSize = projectedBounds.getSize();
+
+		var result = new mapkit.MapRect(
+			projectedCenter.x - projectedSize.x / 2,
+			projectedCenter.y - projectedSize.y / 2,
+			projectedSize.x,
+			projectedSize.y
 		);
+		return result;
 	},
 
-	// Given an instance of mapkit.CoordinateRegion, returns an instance
-	// of Leaflet's LatLngBounds
+	// Given an instance of mapkit.MapRect, returns an instance of L.LatLngBounds
 	// This depends on the current map center, as to shift the bounds on
 	// multiples of 360 in order to prevent artifacts when crossing the
-	// antimeridian
-	_mapkitRegionToLeafletBounds: function(region) {
-		var lngWrapOffset =
-			Math.floor((this._map.getCenter().lng + 180) / 360) * 360;
-		var minLat = region.center.latitude - region.span.latitudeDelta / 2;
-		var minLng = region.center.longitude - region.span.longitudeDelta / 2;
-		var maxLat = region.center.latitude + region.span.latitudeDelta / 2;
-		var maxLng = region.center.longitude + region.span.longitudeDelta / 2;
+	// antimeridian.
+	_mapkitRectToLeafletBounds: function(rect) {
+		// Ask MapkitJS to provide the lat-lng coords of the rect's corners
+		var nw = new mapkit.MapPoint(rect.minX(), rect.maxY()).toCoordinate();
+		var se = new mapkit.MapPoint(rect.maxX(), rect.minY()).toCoordinate();
+
+		var lw = nw.longitude + Math.floor(rect.minX()) * 360;
+		var le = se.longitude + Math.floor(rect.maxX()) * 360;
+
+		var centerLng = this._map.getCenter().lng;
+
+		// Shift the bounding box on the easting axis so it contains the map center
+		if (centerLng < lw) {
+			// Shift the whole thing to the west
+			var offset = Math.floor((centerLng - lw) / 360) * 360;
+			lw += offset;
+			le += offset;
+		} else if (centerLng > le) {
+			// Shift the whole thing to the east
+			var offset = Math.ceil((centerLng - le) / 360) * 360;
+			lw += offset;
+			le += offset;
+		}
 
 		return L.latLngBounds([
-			[minLat, minLng + lngWrapOffset],
-			[maxLat, maxLng + lngWrapOffset],
+			L.latLng(nw.latitude, lw),
+			L.latLng(se.latitude, le),
 		]);
 	},
 
 	_update: function() {
 		if (this._map && this._mutant) {
-			// 			console.log(
-			// 				"",
-			// 				this._leafletBoundsToMapkitRegion().toString(),
-			// 				"vs",
-			// 				this._mutant.region.toString()
-			// 			);
-
-			this._mutant.setRegionAnimated(
-				this._leafletBoundsToMapkitRegion(),
+			this._mutant.setVisibleMapRectAnimated(
+				this._leafletBoundsToMapkitRect(),
 				false
 			);
 		}
@@ -193,9 +208,7 @@ L.MapkitMutant = L.Layer.extend({
 	},
 
 	_onRegionChangeEnd: function(ev) {
-		// 		console.timeStamp("region-change-end");
-
-		//         console.log(ev.target.region.toString());
+		// console.log(ev.target.region.toString());
 
 		if (!this._mutantCanvas) {
 			this._mutantCanvas = this._mutantContainer.querySelector(
@@ -204,9 +217,13 @@ L.MapkitMutant = L.Layer.extend({
 		}
 
 		if (this._map && this._mutantCanvas) {
-			var bounds = this._mapkitRegionToLeafletBounds(this._mutant.region);
-
-			//         console.log(ev.target.region.toString(), bounds);
+			// Despite the event name and this method's name, fetch the mutant's
+			// visible MapRect, not the mutant's region. It uses projected
+			// coordinates (i.e. scaled EPSG:3957 coordinates). This prevents
+			// latitude shift artifacts.
+			var bounds = this._mapkitRectToLeafletBounds(
+				this._mutant.visibleMapRect
+			);
 
 			// The mutant will take one frame to re-stitch its tiles, so
 			// repositioning the mutant's overlay has to take place one frame

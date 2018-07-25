@@ -1,4 +1,9 @@
 
+# 0.3.0 (2018-06-25)
+
+* Switched from mapkit.CoordinateRegion handling to mapkit.MapRect handling.
+  This solves the latitude shift artifacts.
+
 # 0.2.1 (2018-06-24)
 
 * Minor cleanup
