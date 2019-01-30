@@ -96,10 +96,12 @@ L.MapkitMutant = L.Layer.extend({
 		if (!this._mutantContainer) return;
 
 		var mapType = mapkit.Map.MapTypes.Standard;
-		if (this.options.maptype === "hybrid") {
+		if (this.options.type === "hybrid") {
 			mapType = mapkit.Map.MapTypes.Hybrid;
-		} else if (this.options.maptype === "satellite") {
+		} else if (this.options.type === "satellite") {
 			mapType = mapkit.Map.MapTypes.Satellite;
+		} else if (this.options.type === "muted") {
+		    mapType = mapkit.Map.MapTypes.MutedStandard;
 		}
 
 		var map = new mapkit.Map(this._mutantContainer, {
