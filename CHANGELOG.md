@@ -1,4 +1,8 @@
 
+# 0.3.1 (2019-02-07)
+
+* Fixed the "type" option (by @Tam8)
+
 # 0.3.0 (2018-06-25)
 
 * Switched from mapkit.CoordinateRegion handling to mapkit.MapRect handling.
