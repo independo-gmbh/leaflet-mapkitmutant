@@ -75,7 +75,7 @@ L.MapkitMutant = L.Layer.extend({
 		if (!this._mutantContainer) {
 			this._mutantContainer = L.DomUtil.create(
 				"div",
-				"leaflet-mapkit-mutant leaflet-top leaflet-left"
+				"leaflet-mapkit-mutant"
 			);
 			this._mutantContainer.id =
 				"_MutantContainer_" + L.Util.stamp(this._mutantContainer);
