@@ -1,4 +1,6 @@
+# 0.3.2 (2020-12-27)
 
+* Fixed a z-index issue when switching to mapKit tile (by @reinos_nl)
 # 0.3.1 (2019-02-07)
 
 * Fixed the "type" option (by @Tam8)
