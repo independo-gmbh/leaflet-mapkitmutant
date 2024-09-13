@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "lib": ["dom", "es2017"],
+    "module": "esnext",
+    "rootDir": "src",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "inlineSources": true,
+    "outDir": "./dist",
+    "allowJs": true,
+    "pretty": true,
+    "sourceMap": true,
+    "typeRoots": [
+      "./node_modules/mapkit-typescript",
+      "./node_modules/@types"
+    ]
+  },
+  "include": [
+    "./src/**/*.ts"
+    // Include all TypeScript files in the src folder
+  ]
+}

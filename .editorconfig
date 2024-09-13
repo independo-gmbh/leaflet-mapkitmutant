@@ -1,0 +1,36 @@
+# EditorConfig is awesome: https://editorconfig.org
+
+# Top-most EditorConfig file
+root = true
+
+# Set default settings for all files
+[*]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Specific settings for TypeScript files
+[*.ts]
+indent_style = space
+indent_size = 2
+
+# Specific settings for JSON files
+[*.json]
+indent_style = space
+indent_size = 2
+
+# Specific settings for Markdown files
+[*.md]
+trim_trailing_whitespace = false
+
+# Ignore minified files
+[*.min.*]
+indent_size = 0
+
+# YAML settings
+[*.yml]
+indent_style = space
+indent_size = 2
