@@ -12,11 +12,18 @@ This plugin is a fork of the original [Leaflet.MapkitMutant](https://gitlab.com/
 
 ## Usage
 
+### Get Mapkit API Key
+
+To use this plugin you need to get an API key from Apple. You can get one by signing up for the Apple Developer Program
+and creating a new key in the Certificates, Identifiers & Profiles section of the Apple Developer portal
+under [Services](https://developer.apple.com/account/resources/services/list) > Maps.
+For more information, see
+the [Apple Developer Documentation](https://developer.apple.com/documentation/mapkitjs/creating_a_maps_token).
+
 ### Minimal Example
 
-This is the minimal example to get a mapkit map up and running. It loads the mapkit and leaflet libraries from the CDN,
-and then the plugin itself. The plugin requires an authorization token to work, which you can get from the Apple
-Developer portal. Replace `Your authorization token goes here` with your actual token.
+This is the minimal example to get a MapKit map up and running. It loads the MapKit and Leaflet libraries from the CDN,
+and then the plugin itself. Replace `Your authorization token goes here` with your actual token.
 
 ```html
 <!DOCTYPE html>
@@ -51,7 +58,8 @@ Developer portal. Replace `Your authorization token goes here` with your actual 
 
 ### Advanced Example
 
-**Load time optimization**
+**Loading Optimization**
+
 For better control over the version of the plugin and faster loading times it is recommended to use links to specific
 versions:
 
@@ -63,31 +71,34 @@ versions:
 <script src="https://unpkg.com/@independo/leaflet.mapkitmutant@1.0.0/dist/leaflet.mapkitmutant.js"></script>
 ```
 
-**Mapkit options**
+**MapKit JS Options**
+
 You can pass options to configure the mapkit map. For example, you can set the map type to satellite:
 
 ```javascript
-  var mapkit = L.mapkitMutant({
+var mapkit = L.mapkitMutant({
   authorizationCallback: (done) => {
     done("Your authorization token goes here");
   },
   mapkitOptions: {
-    mapType: mapkit.Map.MapTypes.Satellite
-  }
+    mapType: mapkit.Map.MapTypes.Satellite,
+  },
 }).addTo(map);
 ```
 
 or show only specific points of interest:
 
 ```javascript
-  var mapkit = L.mapkitMutant({
+var mapkit = L.mapkitMutant({
   authorizationCallback: (done) => {
     done("Your authorization token goes here");
   },
   mapkitOptions: {
-    pointOfInterestFilter: mapkit.PointOfInterestFilter.including([
-      mapkit.PointOfInterestCategory.Restaurant,
-      mapkit.PointOfInterestCategory.PostOffice]
+    pointOfInterestFilter: mapkit.PointOfInterestFilter.including(
+      [
+        mapkit.PointOfInterestCategory.Restaurant,
+        mapkit.PointOfInterestCategory.PostOffice,
+      ]
     ),
   },
 }).addTo(map);
