@@ -26,8 +26,9 @@
     "url": "https://github.com/independo-gmbh/leaflet.mapkitmutant.git/issues"
   },
   "publishConfig": {
-    "registry": "http://registry.npmjs.org",
-    "access": "public"
+    "registry": "https://registry.npmjs.org",
+    "access": "public",
+    "provenance": true
   },
   "scripts": {
     "lintfix": "prettier **.ts --write",
