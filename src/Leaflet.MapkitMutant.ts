@@ -1,48 +1,126 @@
-// Leaflet.MapkitMutant - use (Apple's) MapkitJS basemaps in Leaflet.
-// See https://gitlab.com/IvanSanchez/Leaflet.MapkitMutant
+const _defaultMapkitOptions = {
+	/**
+	 * A Boolean value that determines whether the map displays a control that lets users pan the map.
+	 */
+	showsUserLocationControl: false,
 
-L.MapkitMutant = L.Layer.extend({
+	/**
+	 * A feature visibility setting that determines when the compass is visible.
+	 * @default 'hidden'
+	 */
+	showsCompass: "hidden",
+
+	/**
+	 * A Boolean value that determines whether to display a control that lets users choose the map type.
+	 * @default false
+	 */
+	showsMapTypeControl: false,
+
+	/**
+	 *   MapKit JS map type. Valid values are:
+	 *   * `mapkit.Map.MapTypes.Standard` - A street map that shows the position of all roads and some road names.
+	 *   * `mapkit.Map.MapTypes.MutedStandard` - A street map where your data is emphasized over the underlying map details.
+	 *   * `mapkit.Map.MapTypes.Hybrid` - A satellite image of the area with road and road name information layered on top.
+	 *   * `mapkit.Map.MapTypes.Satellite` - A satellite image of the area.
+	 *   @default `mapkit.Map.MapTypes.Standard`
+	 */
+	mapType: mapkit.Map.MapTypes.Standard,
+
+	/**
+	 * The map’s color scheme when displaying standard or muted standard map types.
+	 * Valid values are:
+	 * * "light" - A light color scheme.
+	 * * "dark" - A dark color scheme.
+	 */
+	colorScheme: "light",
+
+	/**
+	 * A Boolean value that determines whether the user may rotate the map using the compass control or a rotate gesture.
+	 * @default false
+	 * @type {Boolean}
+	 */
+	isRotationEnabled: false,
+
+	/**
+	 * A feature visibility setting that determines when the map's scale is displayed.
+	 */
+	showsScale: "hidden",
+
+	/**
+	 * A Boolean value that determines whether to show the user's location on
+	 * the map.
+	 * @default false
+	 */
+	showsUserLocation: false,
+
+	/**
+	 * A Boolean value that determines whether to show the zoom control.
+	 */
+	showsZoomControl: false,
+};
+
+(L as any).MapkitMutant = L.Layer.extend({
 	options: {
+		/**
+		 * @inheritDoc L.LayerOptions.minZoom
+		 * @default 3
+		 * @type {Number}
+		 */
 		minZoom: 3,
+
+		/**
+		 * @inheritDoc L.LayerOptions.maxZoom
+		 * @default 23
+		 * @type {Number}
+		 */
 		maxZoom: 23,
 
-		// 🍂option type: String = 'standard'
-		// mapkit's map type. Valid values are strings 'standard' (default),
-		// 'satellite' or 'hybrid'.
-		type: "standard",
+		/**
+		 * Options to pass to MapKit JS, that can be used to customize the map.
+		 */
+		mapkitOptions: {},
 
-		// 🍂option authorizationCallback: Function
-		// An autorization callback function, as described
-		// in [Apple's mapkitJS documentation](https://developer.apple.com/documentation/mapkitjs/mapkit/2974045-init)
-		authorizationCallback: function() {},
+		/**
+		 *  An authorization callback function, as described in Apple's MapKit JS documentation (https://developer.apple.com/documentation/mapkitjs/mapkit/2974045-init).
+		 *  @type {Function} authorizationCallback
+		 *  @default null
+		 */
+		authorizationCallback: function () {},
 
-		// 🍂option language: String = undefined
-		// A language code, as described in
-		// [Apple's mapkitJS documentation](https://developer.apple.com/documentation/mapkitjs/mapkit/2974045-init).
-		// By default Mapkit will use the locale setting from the web browser.
+		/**
+		 * A language code, as described in Apple's MapKit JS documentation (https://developer.apple.com/documentation/mapkitjs/mapkit/2974045-init).
+		 * By default, Mapkit will use the locale setting from the web browser.
+		 * @type {String}
+		 */
+		language: undefined,
 
-		// 🍂option opacity: Number = 1.0
-		// The opacity of the MapkitMutant
+		/**
+		 * The opacity of the MapkitMutant.
+		 * @type {Number}
+		 * @default 1.0
+		 */
 		opacity: 1,
 
-		// 🍂option debugRectangle: Boolean = false
-		// Whether to add a rectangle with the bounds of the mutant to the map.
-		// Only meant for debugging, most useful at low zoom levels.
+		/**
+		 * Whether to add a rectangle with the bounds of the mutant to the map.
+		 * Only meant for debugging, most useful at low zoom levels.
+		 * @type {Boolean}
+		 */
 		debugRectangle: false,
 	},
 
-	initialize: function(options) {
+	initialize: function (options: L.LayerOptions) {
 		L.Util.setOptions(this, options);
 
 		/// TODO: Add a this._mapkitPromise, just like GoogleMutant
 
 		mapkit.init({
 			authorizationCallback: this.options.authorizationCallback,
-			language: this.options.langhage,
+			language: this.options.language,
 		});
 	},
 
-	onAdd: function(map) {
+	onAdd: function (map) {
 		this._map = map;
 
 		this._initMutantContainer();
@@ -54,7 +132,7 @@ L.MapkitMutant = L.Layer.extend({
 		this._resize();
 	},
 
-	onRemove: function(map) {
+	onRemove: function (map) {
 		map._container.removeChild(this._mutantContainer);
 		this._mutantContainer = undefined;
 		map.off("move zoom moveend zoomend", this._update, this);
@@ -71,12 +149,9 @@ L.MapkitMutant = L.Layer.extend({
 
 	// Create the HTMLElement for the mutant map, and add it as a children
 	// of the Leaflet Map container
-	_initMutantContainer: function() {
+	_initMutantContainer: function () {
 		if (!this._mutantContainer) {
-			this._mutantContainer = L.DomUtil.create(
-				"div",
-				"leaflet-mapkit-mutant"
-			);
+			this._mutantContainer = L.DomUtil.create("div", "leaflet-mapkit-mutant");
 			this._mutantContainer.id =
 				"_MutantContainer_" + L.Util.stamp(this._mutantContainer);
 			this._mutantContainer.style.zIndex = "200"; //leaflet map pane at 400, controls at 1000
@@ -92,34 +167,16 @@ L.MapkitMutant = L.Layer.extend({
 	},
 
 	// Create the mutant map inside the mutant container
-	_initMutant: function() {
+	_initMutant: function () {
 		if (!this._mutantContainer) return;
-
-		var mapType = mapkit.Map.MapTypes.Standard;
-		if (this.options.type === "hybrid") {
-			mapType = mapkit.Map.MapTypes.Hybrid;
-		} else if (this.options.type === "satellite") {
-			mapType = mapkit.Map.MapTypes.Satellite;
-		} else if (this.options.type === "muted") {
-		    mapType = mapkit.Map.MapTypes.MutedStandard;
-		}
-
-		var map = new mapkit.Map(this._mutantContainer, {
+		console.log("options", this.options);
+		const mapConfig = {
+			..._defaultMapkitOptions,
+			...this.options.mapkitOptions,
 			visibleMapRect: this._leafletBoundsToMapkitRect(),
-			showsUserLocation: false,
-			showsUserLocationControl: false,
-
-			// WTF, apple devs? other options are boolean but this is a
-			// `mapkit.FeatureVisibility`. F*ck consistency, amirite?!
-			showsCompass: "hidden",
-
-			showsZoomControl: false,
-			showsUserLocationControl: false,
-			showsScale: false,
-			showsMapTypeControl: false,
-			mapType: mapType,
-		});
-
+		};
+		console.log("map config", mapConfig);
+		const map = new mapkit.Map(this._mutantContainer, mapConfig);
 		this._mutant = map;
 		map.addEventListener("region-change-end", this._onRegionChangeEnd, this);
 		map.addEventListener("region-change-start", this._onRegionChangeStart, this);
@@ -135,7 +192,7 @@ L.MapkitMutant = L.Layer.extend({
 
 	// Fetches the map's current *projected* (EPSG:3857) bounds, and returns
 	// an instance of mapkit.MapRect
-	_leafletBoundsToMapkitRect: function() {
+	_leafletBoundsToMapkitRect: function () {
 		var bounds = this._map.getPixelBounds();
 		var scale = this._map.options.crs.scale(this._map.getZoom());
 		var nw = bounds.getTopLeft().divideBy(scale);
@@ -160,7 +217,7 @@ L.MapkitMutant = L.Layer.extend({
 	// This depends on the current map center, as to shift the bounds on
 	// multiples of 360 in order to prevent artifacts when crossing the
 	// antimeridian.
-	_mapkitRectToLeafletBounds: function(rect) {
+	_mapkitRectToLeafletBounds: function (rect) {
 		// Ask MapkitJS to provide the lat-lng coords of the rect's corners
 		var nw = new mapkit.MapPoint(rect.minX(), rect.maxY()).toCoordinate();
 		var se = new mapkit.MapPoint(rect.maxX(), rect.minY()).toCoordinate();
@@ -189,7 +246,7 @@ L.MapkitMutant = L.Layer.extend({
 		]);
 	},
 
-	_update: function() {
+	_update: function () {
 		if (this._map && this._mutant) {
 			this._mutant.setVisibleMapRectAnimated(
 				this._leafletBoundsToMapkitRect(),
@@ -198,7 +255,7 @@ L.MapkitMutant = L.Layer.extend({
 		}
 	},
 
-	_resize: function() {
+	_resize: function () {
 		var size = this._map.getSize();
 		if (
 			this._mutantContainer.style.width === size.x &&
@@ -209,13 +266,12 @@ L.MapkitMutant = L.Layer.extend({
 		if (!this._mutant) return;
 	},
 
-	_onRegionChangeEnd: function(ev) {
+	_onRegionChangeEnd: function (ev) {
 		// console.log(ev.target.region.toString());
 
 		if (!this._mutantCanvas) {
-			this._mutantCanvas = this._mutantContainer.querySelector(
-				"canvas.syrup-canvas"
-			);
+			this._mutantCanvas =
+				this._mutantContainer.querySelector("canvas.syrup-canvas");
 		}
 
 		if (this._map && this._mutantCanvas) {
@@ -234,7 +290,7 @@ L.MapkitMutant = L.Layer.extend({
 
 			L.Util.cancelAnimFrame(this._requestedFrame);
 
-			this._requestedFrame = L.Util.requestAnimFrame(function() {
+			this._requestedFrame = L.Util.requestAnimFrame(function () {
 				if (!this._canvasOverlay) {
 					this._canvasOverlay = L.imageOverlay(null, bounds);
 
@@ -274,29 +330,29 @@ L.MapkitMutant = L.Layer.extend({
 
 	// 🍂method setOpacity(opacity: Number): this
 	// Sets the opacity of the MapkitMutant.
-	setOpacity: function(opacity) {
+	setOpacity: function (opacity) {
 		this.options.opacity = opacity;
 		this._updateOpacity();
 		return this;
 	},
 
-	_updateOpacity: function() {
+	_updateOpacity: function () {
 		if (this._mutantCanvas) {
 			L.DomUtil.setOpacity(this._mutantCanvas, this.options.opacity);
 		}
 	},
 
-	_onRegionChangeStart: function(ev) {
+	_onRegionChangeStart: function (ev) {
 		/// TODO: check if there's any use to this event handler, clean up
 		//         console.timeStamp('region-change-start');
 	},
 
-	setElementSize: function(e, size) {
+	setElementSize: function (e, size) {
 		e.style.width = size.x + "px";
 		e.style.height = size.y + "px";
 	},
 });
 
-L.mapkitMutant = function mapkitMutant(options) {
-	return new L.MapkitMutant(options);
+(L as any).mapkitMutant = function mapkitMutant(options) {
+	return new (L as any).MapkitMutant(options);
 };
