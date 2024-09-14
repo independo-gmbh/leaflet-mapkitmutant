@@ -26,6 +26,7 @@
     "url": "https://github.com/independo-gmbh/leaflet.mapkitmutant.git/issues"
   },
   "publishConfig": {
+    "registry": "http://registry.npmjs.org",
     "access": "public"
   },
   "scripts": {
