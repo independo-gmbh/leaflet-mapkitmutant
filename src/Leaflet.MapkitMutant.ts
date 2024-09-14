@@ -1,3 +1,64 @@
+const _defaultMapkitOptions = {
+	/**
+	 * A Boolean value that determines whether the map displays a control that lets users pan the map.
+	 */
+	showsUserLocationControl: false,
+
+	/**
+	 * A feature visibility setting that determines when the compass is visible.
+	 * @default 'hidden'
+	 */
+	showsCompass: "hidden",
+
+	/**
+	 * A Boolean value that determines whether to display a control that lets users choose the map type.
+	 * @default false
+	 */
+	showsMapTypeControl: false,
+
+	/**
+	 *   MapKit JS map type. Valid values are:
+	 *   * `mapkit.Map.MapTypes.Standard` - A street map that shows the position of all roads and some road names.
+	 *   * `mapkit.Map.MapTypes.MutedStandard` - A street map where your data is emphasized over the underlying map details.
+	 *   * `mapkit.Map.MapTypes.Hybrid` - A satellite image of the area with road and road name information layered on top.
+	 *   * `mapkit.Map.MapTypes.Satellite` - A satellite image of the area.
+	 *   @default `mapkit.Map.MapTypes.Standard`
+	 */
+	mapType: mapkit.Map.MapTypes.Standard,
+
+	/**
+	 * The map’s color scheme when displaying standard or muted standard map types.
+	 * Valid values are:
+	 * * "light" - A light color scheme.
+	 * * "dark" - A dark color scheme.
+	 */
+	colorScheme: "light",
+
+	/**
+	 * A Boolean value that determines whether the user may rotate the map using the compass control or a rotate gesture.
+	 * @default false
+	 * @type {Boolean}
+	 */
+	isRotationEnabled: false,
+
+	/**
+	 * A feature visibility setting that determines when the map's scale is displayed.
+	 */
+	showsScale: "hidden",
+
+	/**
+	 * A Boolean value that determines whether to show the user's location on
+	 * the map.
+	 * @default false
+	 */
+	showsUserLocation: false,
+
+	/**
+	 * A Boolean value that determines whether to show the zoom control.
+	 */
+	showsZoomControl: false,
+};
+
 (L as any).MapkitMutant = L.Layer.extend({
 	options: {
 		/**
@@ -15,11 +76,9 @@
 		maxZoom: 23,
 
 		/**
-		 *   MapKit JS map type. Valid values are strings 'standard' (default), 'satellite' or 'hybrid'.
-		 *   @default 'standard'
-		 *   @type {String}
+		 * Options to pass to MapKit JS, that can be used to customize the map.
 		 */
-		type: "standard",
+		mapkitOptions: {},
 
 		/**
 		 *  An authorization callback function, as described in Apple's MapKit JS documentation (https://developer.apple.com/documentation/mapkitjs/mapkit/2974045-init).
@@ -57,7 +116,7 @@
 
 		mapkit.init({
 			authorizationCallback: this.options.authorizationCallback,
-			language: this.options.langhage,
+			language: this.options.language,
 		});
 	},
 
@@ -110,27 +169,14 @@
 	// Create the mutant map inside the mutant container
 	_initMutant: function () {
 		if (!this._mutantContainer) return;
-
-		var mapType = mapkit.Map.MapTypes.Standard;
-		if (this.options.type === "hybrid") {
-			mapType = mapkit.Map.MapTypes.Hybrid;
-		} else if (this.options.type === "satellite") {
-			mapType = mapkit.Map.MapTypes.Satellite;
-		} else if (this.options.type === "muted") {
-			mapType = mapkit.Map.MapTypes.MutedStandard;
-		}
-
-		var map = new mapkit.Map(this._mutantContainer, {
+		console.log("options", this.options);
+		const mapConfig = {
+			..._defaultMapkitOptions,
+			...this.options.mapkitOptions,
 			visibleMapRect: this._leafletBoundsToMapkitRect(),
-			showsUserLocation: false,
-			showsUserLocationControl: false,
-			showsCompass: "hidden",
-			showsZoomControl: false,
-			showsScale: "hidden",
-			showsMapTypeControl: false,
-			mapType: mapType,
-		});
-
+		};
+		console.log("map config", mapConfig);
+		const map = new mapkit.Map(this._mutantContainer, mapConfig);
 		this._mutant = map;
 		map.addEventListener("region-change-end", this._onRegionChangeEnd, this);
 		map.addEventListener("region-change-start", this._onRegionChangeStart, this);

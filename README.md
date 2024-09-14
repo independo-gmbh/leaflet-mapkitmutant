@@ -1,56 +1,100 @@
 # Leaflet.MapkitMutant
 
 A [LeafletJS](http://leafletjs.com/) plugin to
-use [Apple's mapkitJS](https://developer.apple.com/documentation/mapkitjs) basemaps.
+use [Apple's mapkitJS](https://developer.apple.com/documentation/mapkitjs) maps as a base layer.
 
 The name comes from [GoogleMutant](https://gitlab.com/IvanSanchez/Leaflet.GridLayer.GoogleMutant). It's catchy, even if
 MapkitMutant doesn't use DOM mutation observers.
+This plugin is a fork of the original [Leaflet.MapkitMutant](https://gitlab.com/IvanSanchez/Leaflet.MapkitMutant) by
+[Ivan Sanchez Ortega](https://gitlab.com/IvanSanchez).
 
-I do not have any authorization tokens, so there's no live demo for this
-(hint hint: somebody please provide me with one). Instead, marvel at this gif:
-
-![Leaflet showing the three different mapkitjs map types](docs/demo.gifo.gif)
+![Leaflet showing the three different mapkitjs map types](docs/demo.gif)
 
 ## Usage
 
-Include MapKitJS, LeafletJS, and Leaflet.MapkitMutant JS in your HTML:
+### Minimal Example
+
+This is the minimal example to get a mapkit map up and running. It loads the mapkit and leaflet libraries from the CDN,
+and then the plugin itself. The plugin requires an authorization token to work, which you can get from the Apple
+Developer portal. Replace `Your authorization token goes here` with your actual token.
 
 ```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Leaflet MapKit Playground</title>
+  <script src="https://cdn.apple-mapkit.com/mk/5.x.x/mapkit.js"></script>
+  <script src="https://unpkg.com/leaflet@latest/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@latest/dist/leaflet.css" />
+  <script src="https://unpkg.com/@independo/leaflet.mapkitmutant@latest"></script>
+  <style>
+    #map {
+      height: 1000px;
+      width: 1000px;
+    }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+  var map = L.map("map").setView([48.20849, 16.37208], 16);
+  var mapkit = L.mapkitMutant({
+    authorizationCallback: (done) => {
+      done("Your authorization token goes here");
+    },
+  }).addTo(map);
+</script>
+</body>
 
-<script src="https://cdn.apple-mapkit.com/mk/5.0.x/mapkit.js"></script>
-<script src="https://unpkg.com/leaflet@latest/dist/leaflet.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@latest/dist/leaflet.css" />
-<script src="https://unpkg.com/@independo/leaflet.mapkitmutant@latest"></script>
+</html>
 ```
 
+### Advanced Example
+
+**Load time optimization**
 For better control over the version of the plugin and faster loading times it is recommended to use links to specific
 versions:
 
 ```html
 
-<script src="https://cdn.apple-mapkit.com/mk/5.0.x/mapkit.js"></script>
+<script src="https://cdn.apple-mapkit.com/mk/5.32.x/mapkit.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/@independo/leaflet.mapkitmutant@1.0.0-dev.3/dist/leaflet.mapkitmutant.js"></script>
+<script src="https://unpkg.com/@independo/leaflet.mapkitmutant@1.0.0/dist/leaflet.mapkitmutant.js"></script>
 ```
 
-Then, you can create an instance of `L.GridLayer.MapkitMutant` on your JS code:
+**Mapkit options**
+You can pass options to configure the mapkit map. For example, you can set the map type to satellite:
 
 ```javascript
-var roads = L.mapkitMutant({
-  // valid values for 'type' are 'default', 'satellite' and 'hybrid'
-  type: 'hybrid',
-
-  authorizationCallback: function(done) {
-    done("Your authorization token goes here")
+  var mapkit = L.mapkitMutant({
+  authorizationCallback: (done) => {
+    done("Your authorization token goes here");
   },
-  language: 'en',
-
-  // For debugging purposes only. Displays a L.Rectangle on the
-  // visible bounds ("region") of the mutant.
-  debugRectangle: false
+  mapkitOptions: {
+    mapType: mapkit.Map.MapTypes.Satellite
+  }
 }).addTo(map);
 ```
+
+or show only specific points of interest:
+
+```javascript
+  var mapkit = L.mapkitMutant({
+  authorizationCallback: (done) => {
+    done("Your authorization token goes here");
+  },
+  mapkitOptions: {
+    pointOfInterestFilter: mapkit.PointOfInterestFilter.including([
+      mapkit.PointOfInterestCategory.Restaurant,
+      mapkit.PointOfInterestCategory.PostOffice]
+    ),
+  },
+}).addTo(map);
+```
+
+The full list of options can be found in
+the [Apple documentation](https://developer.apple.com/documentation/mapkitjs/mapconstructoroptions#3001292).
 
 ## Known issues
 
