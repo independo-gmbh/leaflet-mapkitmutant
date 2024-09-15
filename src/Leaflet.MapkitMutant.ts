@@ -8,7 +8,7 @@ const _defaultMapkitOptions = {
 	 * A feature visibility setting that determines when the compass is visible.
 	 * @default 'hidden'
 	 */
-	showsCompass: "hidden",
+	showsCompass: mapkit.FeatureVisibility.Hidden,
 
 	/**
 	 * A Boolean value that determines whether to display a control that lets users choose the map type.
@@ -44,7 +44,7 @@ const _defaultMapkitOptions = {
 	/**
 	 * A feature visibility setting that determines when the map's scale is displayed.
 	 */
-	showsScale: "hidden",
+	showsScale: mapkit.FeatureVisibility.Hidden,
 
 	/**
 	 * A Boolean value that determines whether to show the user's location on
@@ -58,6 +58,8 @@ const _defaultMapkitOptions = {
 	 */
 	showsZoomControl: false,
 };
+
+var _mapRect: mapkit.MapRect | null = null;
 
 (L as any).MapkitMutant = L.Layer.extend({
 	options: {
@@ -191,23 +193,32 @@ const _defaultMapkitOptions = {
 	// Fetches the map's current *projected* (EPSG:3857) bounds, and returns
 	// an instance of mapkit.MapRect
 	_leafletBoundsToMapkitRect: function () {
-		const bounds = this._map.getPixelBounds();
-		const scale = this._map.options.crs.scale(this._map.getZoom());
-		const nw = bounds.getTopLeft().divideBy(scale);
-		const se = bounds.getBottomRight().divideBy(scale);
+		var bounds = this._map.getPixelBounds();
+		var scale = this._map.options.crs.scale(this._map.getZoom());
+
+		var nw = bounds.getTopLeft().divideBy(scale);
+		var se = bounds.getBottomRight().divideBy(scale);
 
 		// Map those bounds into a [[0,0]..[1,1]] range
-		const projectedBounds = L.bounds([nw, se]);
+		var projectedBounds = L.bounds([nw, se]);
 
-		const projectedCenter = projectedBounds.getCenter();
-		const projectedSize = projectedBounds.getSize();
+		var projectedCenter = projectedBounds.getCenter();
+		var projectedSize = projectedBounds.getSize();
 
-		return new mapkit.MapRect(
-			projectedCenter.x - projectedSize.x / 2,
-			projectedCenter.y - projectedSize.y / 2,
-			projectedSize.x,
-			projectedSize.y
-		);
+		if (!_mapRect) {
+			_mapRect = new mapkit.MapRect(
+				projectedCenter.x - projectedSize.x / 2,
+				projectedCenter.y - projectedSize.y / 2,
+				projectedSize.x,
+				projectedSize.y
+			);
+		} else {
+			_mapRect.origin.x = projectedCenter.x - projectedSize.x / 2;
+			_mapRect.origin.y = projectedCenter.y - projectedSize.y / 2;
+			_mapRect.size.width = projectedSize.x;
+			_mapRect.size.height = projectedSize.y;
+		}
+		return _mapRect;
 	},
 
 	// Given an instance of mapkit.MapRect, returns an instance of L.LatLngBounds
