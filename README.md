@@ -68,7 +68,7 @@ versions:
 <script src="https://cdn.apple-mapkit.com/mk/5.32.x/mapkit.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/@independo/leaflet.mapkitmutant@1.0.2/dist/Leaflet.MapkitMutant.js"></script>
+<script src="https://unpkg.com/@independo/leaflet.mapkitmutant@1.0.3/dist/Leaflet.MapkitMutant.js"></script>
 ```
 
 **MapKit JS Options**
