@@ -63,7 +63,18 @@ var _mapRect: mapkit.MapRect | null = null;
 
 (L as any).MapkitMutant = L.Layer.extend({
 	options: {
+		/**
+		 * @inheritDoc L.LayerOptions.minZoom
+		 * @default 3
+		 * @type {Number}
+		 */
 		minZoom: 3,
+
+		/**
+		 * @inheritDoc L.LayerOptions.maxZoom
+		 * @default 23
+		 * @type {Number}
+		 */
 		maxZoom: 23,
 
 		/**
@@ -214,24 +225,15 @@ var _mapRect: mapkit.MapRect | null = null;
 	// This depends on the current map center, as to shift the bounds on
 	// multiples of 360 in order to prevent artifacts when crossing the
 	// antimeridian.
-	_mapkitRectToLeafletBounds: function (rect: mapkit.MapRect): L.LatLngBounds {
-		// Extract coordinates of top-left and bottom-right points from the MapRect
-		var swPoint = L.point(rect.origin.x, rect.origin.y + rect.size.height);
-		var nePoint = L.point(rect.origin.x + rect.size.width, rect.origin.y);
+	_mapkitRectToLeafletBounds: function (rect) {
+		// Ask MapkitJS to provide the lat-lng coords of the rect's corners
+		var nw = new mapkit.MapPoint(rect.minX(), rect.maxY()).toCoordinate();
+		var se = new mapkit.MapPoint(rect.maxX(), rect.minY()).toCoordinate();
 
-		// Convert from pixel coordinates to geographical coordinates (lat, lng)
-		var swLatLng = this._map.unproject(swPoint, this._map.getZoom());
-		var neLatLng = this._map.unproject(nePoint, this._map.getZoom());
+		var lw = nw.longitude + Math.floor(rect.minX()) * 360;
+		var le = se.longitude + Math.floor(rect.maxX()) * 360;
 
-		// Create bounds from southwest and northeast coordinates
-		var bounds = new L.LatLngBounds(swLatLng, neLatLng);
-
-		// Get the current center of the map (lat, lng)
 		var centerLng = this._map.getCenter().lng;
-
-		// Longitude of the bounds' west and east sides
-		var lw = bounds.getWest(); // Longitude of the west side
-		var le = bounds.getEast(); // Longitude of the east side
 
 		// Shift the bounding box on the easting axis so it contains the map center
 		if (centerLng < lw) {
@@ -246,10 +248,10 @@ var _mapRect: mapkit.MapRect | null = null;
 			le += offset;
 		}
 
-		return L.latLngBounds(
-			L.latLng(bounds.getSouth(), lw), // Adjusted southwest point
-			L.latLng(bounds.getNorth(), le) // Adjusted northeast point
-		);
+		return L.latLngBounds([
+			L.latLng(nw.latitude, lw),
+			L.latLng(se.latitude, le),
+		]);
 	},
 
 	_update: function () {
@@ -285,7 +287,9 @@ var _mapRect: mapkit.MapRect | null = null;
 			// visible MapRect, not the mutant's region. It uses projected
 			// coordinates (i.e. scaled EPSG:3957 coordinates). This prevents
 			// latitude shift artifacts.
-			var bounds = this._mapkitRectToLeafletBounds(this._mutant.visibleMapRect);
+			var bounds = this._mapkitRectToLeafletBounds(
+				this._mutant.visibleMapRect
+			);
 
 			// The mutant will take one frame to re-stitch its tiles, so
 			// repositioning the mutant's overlay has to take place one frame
@@ -334,7 +338,11 @@ var _mapRect: mapkit.MapRect | null = null;
 
 	// 🍂method setOpacity(opacity: Number): this
 	// Sets the opacity of the MapkitMutant.
-	setOpacity: function (opacity) {
+	/**
+	 * Sets the opacity of the MapkitMutant.
+	 * @param opacity The new opacity value.
+	 */
+	setOpacity: function (opacity: number) {
 		this.options.opacity = opacity;
 		this._updateOpacity();
 		return this;
