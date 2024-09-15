@@ -1,7 +1,7 @@
 {
   "name": "@independo/leaflet.mapkitmutant",
   "description": "Leaflet plugin to use Apple MapKit JS as a map provider",
-  "version": "1.0.1",
+  "version": "1.0.2-dev.1",
   "main": "dist/Leaflet.MapkitMutant.js",
   "types": "dist/Leaflet.MapkitMutant.d.ts",
   "unpkg": "dist/Leaflet.MapkitMutant.js",
@@ -17,7 +17,8 @@
     }
   ],
   "author": "Independo GmbH",
-  "license": "LGPL",
+  "homepage": "https://github.com/independo-gmbh/leaflet.mapkitmutant#readme",
+  "license": "LGPL-3.0-or-later",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/independo-gmbh/leaflet.mapkitmutant.git"

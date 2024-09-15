@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "es2017"],
+    "lib": [
+      "dom",
+      "esnext"
+    ],
     "module": "esnext",
+    "target": "es5",
     "rootDir": "src",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -11,13 +15,13 @@
     "allowJs": true,
     "pretty": true,
     "sourceMap": true,
+    "strict": false,
     "typeRoots": [
       "./node_modules/mapkit-typescript",
       "./node_modules/@types"
     ]
   },
   "include": [
-    "./src/**/*.ts"
-    // Include all TypeScript files in the src folder
+    "./src/**/*"
   ]
 }
