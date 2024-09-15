@@ -17,7 +17,8 @@
     }
   ],
   "author": "Independo GmbH",
-  "license": "LGPL",
+  "homepage": "https://github.com/independo-gmbh/leaflet.mapkitmutant#readme",
+  "license": "LGPL-3.0-or-later",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/independo-gmbh/leaflet.mapkitmutant.git"
