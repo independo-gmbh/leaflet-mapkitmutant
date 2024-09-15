@@ -169,13 +169,11 @@ const _defaultMapkitOptions = {
 	// Create the mutant map inside the mutant container
 	_initMutant: function () {
 		if (!this._mutantContainer) return;
-		console.log("options", this.options);
 		const mapConfig = {
 			..._defaultMapkitOptions,
 			...this.options.mapkitOptions,
 			visibleMapRect: this._leafletBoundsToMapkitRect(),
 		};
-		console.log("map config", mapConfig);
 		const map = new mapkit.Map(this._mutantContainer, mapConfig);
 		this._mutant = map;
 		map.addEventListener("region-change-end", this._onRegionChangeEnd, this);
