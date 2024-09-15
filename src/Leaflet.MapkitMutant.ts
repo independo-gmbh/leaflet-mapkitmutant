@@ -160,7 +160,7 @@ const _defaultMapkitOptions = {
 			this._map.getContainer().appendChild(this._mutantContainer);
 		}
 
-		// 		this.setOpacity(this.options.opacity);
+		this.setOpacity(this.options.opacity);
 		this.setElementSize(this._mutantContainer, this._map.getSize());
 
 		//this._attachObserver(this._mutantContainer);
@@ -191,24 +191,23 @@ const _defaultMapkitOptions = {
 	// Fetches the map's current *projected* (EPSG:3857) bounds, and returns
 	// an instance of mapkit.MapRect
 	_leafletBoundsToMapkitRect: function () {
-		var bounds = this._map.getPixelBounds();
-		var scale = this._map.options.crs.scale(this._map.getZoom());
-		var nw = bounds.getTopLeft().divideBy(scale);
-		var se = bounds.getBottomRight().divideBy(scale);
+		const bounds = this._map.getPixelBounds();
+		const scale = this._map.options.crs.scale(this._map.getZoom());
+		const nw = bounds.getTopLeft().divideBy(scale);
+		const se = bounds.getBottomRight().divideBy(scale);
 
 		// Map those bounds into a [[0,0]..[1,1]] range
-		var projectedBounds = L.bounds([nw, se]);
+		const projectedBounds = L.bounds([nw, se]);
 
-		var projectedCenter = projectedBounds.getCenter();
-		var projectedSize = projectedBounds.getSize();
+		const projectedCenter = projectedBounds.getCenter();
+		const projectedSize = projectedBounds.getSize();
 
-		var result = new mapkit.MapRect(
+		return new mapkit.MapRect(
 			projectedCenter.x - projectedSize.x / 2,
 			projectedCenter.y - projectedSize.y / 2,
 			projectedSize.x,
 			projectedSize.y
 		);
-		return result;
 	},
 
 	// Given an instance of mapkit.MapRect, returns an instance of L.LatLngBounds
@@ -328,7 +327,11 @@ const _defaultMapkitOptions = {
 
 	// 🍂method setOpacity(opacity: Number): this
 	// Sets the opacity of the MapkitMutant.
-	setOpacity: function (opacity) {
+	/**
+	 * Sets the opacity of the MapkitMutant.
+	 * @param opacity The new opacity value.
+	 */
+	setOpacity: function (opacity: number) {
 		this.options.opacity = opacity;
 		this._updateOpacity();
 		return this;

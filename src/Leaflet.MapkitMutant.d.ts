@@ -9,7 +9,6 @@ export interface MapkitMutantOptions extends L.LayerOptions {
 	 * @inheritDoc L.LayerOptions
 	 */
 	maxZoom: number;
-
 	/**
 	 *   MapKit JS map type. Valid values are strings 'standard' (default),
 	 *   'satellite' or 'hybrid'.
@@ -17,21 +16,18 @@ export interface MapkitMutantOptions extends L.LayerOptions {
 	 *   @type {String}
 	 */
 	type: "standard" | "satellite" | "hybrid" | "muted";
-
 	/**
 	 *  An authorization callback function, as described in Apple's MapKit JS documentation (https://developer.apple.com/documentation/mapkitjs/mapkit/2974045-init).
 	 *  @type {Function} authorizationCallback
 	 *  @default null
 	 */
 	authorizationCallback: () => void;
-
 	/**
 	 * A language code, as described in Apple's MapKit JS documentation (https://developer.apple.com/documentation/mapkitjs/mapkit/2974045-init).
 	 * By default, Mapkit will use the locale setting from the web browser.
 	 * @type {String}
 	 */
 	language?: string;
-
 	/**
 	 * The opacity of the MapkitMutant.
 	 * @type {Number}
@@ -76,4 +72,6 @@ declare namespace leaflet {
 
 		private setElementSize(e: HTMLElement, size: L.Point): void;
 	}
+
+	export function mapkitMutant(options: MapkitMutantOptions): MapkitMutant;
 }
