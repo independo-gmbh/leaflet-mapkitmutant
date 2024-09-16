@@ -1,3 +1,11 @@
+<p align="center">
+  <img src="https://img.shields.io/maintenance/yes/2024" />
+  <a href="https://www.npmjs.com/package/@independo/leaflet.mapkitmutant"><img src="https://img.shields.io/npm/l/@independo/leaflet.mapkitmutant" /></a>
+<br>
+  <a href="https://www.npmjs.com/package/@independo/leaflet.mapkitmutant"><img src="https://img.shields.io/npm/dw/@independo/leaflet.mapkitmutant" /></a>
+  <a href="https://www.npmjs.com/package/@independo/leaflet.mapkitmutant"><img src="https://img.shields.io/npm/v/@independo/leaflet.mapkitmutant" /></a>
+</p>
+
 # Leaflet.MapkitMutant
 
 A [LeafletJS](http://leafletjs.com/) plugin to
