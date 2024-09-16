@@ -45,7 +45,7 @@ and then the plugin itself. Replace `Your authorization token goes here` with yo
 <div id="map"></div>
 <script>
   var map = L.map("map").setView([48.20849, 16.37208], 16);
-  var mapkit = L.mapkitMutant({
+  var mapkitLayer = L.mapkitMutant({
     authorizationCallback: (done) => {
       done("Your authorization token goes here");
     },
