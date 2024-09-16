@@ -1,12 +1,12 @@
 # Leaflet.MapkitMutant
 
 A [LeafletJS](http://leafletjs.com/) plugin to
-use [Apple's mapkitJS](https://developer.apple.com/documentation/mapkitjs) maps as a base layer.
+use [Apple's MapKit JS](https://developer.apple.com/documentation/mapkitjs) maps as a base layer.
 
-The name comes from [GoogleMutant](https://gitlab.com/IvanSanchez/Leaflet.GridLayer.GoogleMutant). It's catchy, even if
-MapkitMutant doesn't use DOM mutation observers.
 This plugin is a fork of the original [Leaflet.MapkitMutant](https://gitlab.com/IvanSanchez/Leaflet.MapkitMutant) by
 [Ivan Sanchez Ortega](https://gitlab.com/IvanSanchez).
+The name comes from [GoogleMutant](https://gitlab.com/IvanSanchez/Leaflet.GridLayer.GoogleMutant). It's catchy, even if
+MapkitMutant doesn't use DOM mutation observers.
 
 ![Leaflet showing the three different mapkitjs map types](docs/demo.gif)
 
@@ -106,6 +106,7 @@ var mapkit = L.mapkitMutant({
 
 The full list of options can be found in
 the [Apple documentation](https://developer.apple.com/documentation/mapkitjs/mapconstructoroptions#3001292).
+_Be aware that some of the options might not work as expected, as the plugin is still in development._
 
 ## Known issues
 
