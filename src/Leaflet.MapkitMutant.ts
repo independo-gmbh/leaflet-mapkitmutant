@@ -193,17 +193,17 @@ var _mapRect: mapkit.MapRect | null = null;
 	// Fetches the map's current *projected* (EPSG:3857) bounds, and returns
 	// an instance of mapkit.MapRect
 	_leafletBoundsToMapkitRect: function () {
-		var bounds = this._map.getPixelBounds();
-		var scale = this._map.options.crs.scale(this._map.getZoom());
+		const bounds = this._map.getPixelBounds();
+		const scale = this._map.options.crs.scale(this._map.getZoom());
 
-		var nw = bounds.getTopLeft().divideBy(scale);
-		var se = bounds.getBottomRight().divideBy(scale);
+		const nw = bounds.getTopLeft().divideBy(scale);
+		const se = bounds.getBottomRight().divideBy(scale);
 
 		// Map those bounds into a [[0,0]..[1,1]] range
-		var projectedBounds = L.bounds([nw, se]);
+		const projectedBounds = L.bounds([nw, se]);
 
-		var projectedCenter = projectedBounds.getCenter();
-		var projectedSize = projectedBounds.getSize();
+		const projectedCenter = projectedBounds.getCenter();
+		const projectedSize = projectedBounds.getSize();
 
 		if (!_mapRect) {
 			_mapRect = new mapkit.MapRect(
@@ -226,24 +226,25 @@ var _mapRect: mapkit.MapRect | null = null;
 	// multiples of 360 in order to prevent artifacts when crossing the
 	// antimeridian.
 	_mapkitRectToLeafletBounds: function (rect: mapkit.MapRect) {
+		let offset;
 		// Ask MapkitJS to provide the lat-lng coords of the rect's corners
-		var nw = new mapkit.MapPoint(rect.minX(), rect.maxY()).toCoordinate();
-		var se = new mapkit.MapPoint(rect.maxX(), rect.minY()).toCoordinate();
+		const nw = new mapkit.MapPoint(rect.minX(), rect.maxY()).toCoordinate();
+		const se = new mapkit.MapPoint(rect.maxX(), rect.minY()).toCoordinate();
 
-		var lw = nw.longitude + Math.floor(rect.minX()) * 360;
-		var le = se.longitude + Math.floor(rect.maxX()) * 360;
+		let lw = nw.longitude + Math.floor(rect.minX()) * 360;
+		let le = se.longitude + Math.floor(rect.maxX()) * 360;
 
-		var centerLng = this._map.getCenter().lng;
+		const centerLng = this._map.getCenter().lng;
 
 		// Shift the bounding box on the easting axis so it contains the map center
 		if (centerLng < lw) {
 			// Shift the whole thing to the west
-			var offset = Math.floor((centerLng - lw) / 360) * 360;
+			offset = Math.floor((centerLng - lw) / 360) * 360;
 			lw += offset;
 			le += offset;
 		} else if (centerLng > le) {
 			// Shift the whole thing to the east
-			var offset = Math.ceil((centerLng - le) / 360) * 360;
+			offset = Math.ceil((centerLng - le) / 360) * 360;
 			lw += offset;
 			le += offset;
 		}
@@ -264,7 +265,7 @@ var _mapRect: mapkit.MapRect | null = null;
 	},
 
 	_resize: function () {
-		var size = this._map.getSize();
+		const size = this._map.getSize();
 		if (
 			this._mutantContainer.style.width === size.x &&
 			this._mutantContainer.style.height === size.y
@@ -287,7 +288,7 @@ var _mapRect: mapkit.MapRect | null = null;
 			// visible MapRect, not the mutant's region. It uses projected
 			// coordinates (i.e. scaled EPSG:3957 coordinates). This prevents
 			// latitude shift artifacts.
-			var bounds = this._mapkitRectToLeafletBounds(
+			const bounds = this._mapkitRectToLeafletBounds(
 				this._mutant.visibleMapRect
 			);
 
@@ -304,7 +305,8 @@ var _mapRect: mapkit.MapRect | null = null;
 
 					// Hack the ImageOverlay's _image property so that it doesn't
 					// create a HTMLImageElement
-					var img = (this._canvasOverlay._image = L.DomUtil.create("div"));
+					const img = (this._canvasOverlay._image =
+						L.DomUtil.create("div"));
 
 					L.DomUtil.addClass(img, "leaflet-image-layer");
 					L.DomUtil.addClass(img, "leaflet-zoom-animated");
