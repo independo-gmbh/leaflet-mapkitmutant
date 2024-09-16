@@ -225,7 +225,7 @@ var _mapRect: mapkit.MapRect | null = null;
 	// This depends on the current map center, as to shift the bounds on
 	// multiples of 360 in order to prevent artifacts when crossing the
 	// antimeridian.
-	_mapkitRectToLeafletBounds: function (rect) {
+	_mapkitRectToLeafletBounds: function (rect: mapkit.MapRect) {
 		// Ask MapkitJS to provide the lat-lng coords of the rect's corners
 		var nw = new mapkit.MapPoint(rect.minX(), rect.maxY()).toCoordinate();
 		var se = new mapkit.MapPoint(rect.maxX(), rect.minY()).toCoordinate();
