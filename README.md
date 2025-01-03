@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="https://img.shields.io/maintenance/yes/2025" />
-  <a href="https://www.npmjs.com/package/@independo/leaflet.mapkitmutant"><img src="https://img.shields.io/npm/l/@independo/leaflet.mapkitmutant" /></a>
+  <img src="https://img.shields.io/maintenance/yes/2025" alt="Maintenance Badge: until 2025" />
+  <a href="https://www.npmjs.com/package/@independo/leaflet.mapkitmutant"><img src="https://img.shields.io/npm/l/@independo/leaflet.mapkitmutant" alt="License Badge: LGPL-3.0-or-later" /></a>
 <br>
-  <a href="https://www.npmjs.com/package/@independo/leaflet.mapkitmutant"><img src="https://img.shields.io/npm/dw/@independo/leaflet.mapkitmutant" /></a>
-  <a href="https://www.npmjs.com/package/@independo/leaflet.mapkitmutant"><img src="https://img.shields.io/npm/v/@independo/leaflet.mapkitmutant" /></a>
+  <a href="https://www.npmjs.com/package/@independo/leaflet.mapkitmutant"><img src="https://img.shields.io/npm/dw/@independo/leaflet.mapkitmutant" alt="" role="presentation" /></a>
+  <a href="https://www.npmjs.com/package/@independo/leaflet.mapkitmutant"><img src="https://img.shields.io/npm/v/@independo/leaflet.mapkitmutant" alt="" role="presentation" /></a>
 </p>
 
 # Leaflet.MapkitMutant
