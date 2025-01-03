@@ -1,7 +1,7 @@
 {
   "name": "@independo/leaflet.mapkitmutant",
   "description": "Leaflet plugin to use Apple MapKit JS as a map provider",
-  "version": "1.0.5-dev.3",
+  "version": "1.0.5",
   "main": "dist/Leaflet.MapkitMutant.js",
   "types": "dist/Leaflet.MapkitMutant.d.ts",
   "unpkg": "dist/Leaflet.MapkitMutant.js",
