@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.shields.io/maintenance/yes/2024" />
+  <img src="https://img.shields.io/maintenance/yes/2025" />
   <a href="https://www.npmjs.com/package/@independo/leaflet.mapkitmutant"><img src="https://img.shields.io/npm/l/@independo/leaflet.mapkitmutant" /></a>
 <br>
   <a href="https://www.npmjs.com/package/@independo/leaflet.mapkitmutant"><img src="https://img.shields.io/npm/dw/@independo/leaflet.mapkitmutant" /></a>
