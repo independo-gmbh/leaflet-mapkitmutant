@@ -55,7 +55,7 @@
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/release-notes-generator": "^14.0.1",
     "@types/leaflet": "^1.9.4",
-    "conventional-changelog-conventionalcommits": "^8.0.0",
+    "conventional-changelog-conventionalcommits": "^9.0.0",
     "mapkit-typescript": "^5.18.2",
     "prettier": "^3.3.3",
     "terser-webpack-plugin": "^5.3.10",
