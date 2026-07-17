@@ -49,12 +49,15 @@ export class MapkitMutant extends LayerBase {
 			this._onRegionChangeEnd,
 			this
 		);
+		L.Util.cancelAnimFrame(this._requestedFrame);
+		this._requestedFrame = undefined;
 		if (this._canvasOverlay) {
 			this._canvasOverlay.remove();
 		}
 
 		// Drop references to the torn-down mutant so a later onAdd() rebuilds
 		// from scratch instead of reusing a detached canvas/overlay.
+		this._map = undefined;
 		this._mutant = undefined;
 		this._mutantCanvas = undefined;
 		this._canvasOverlay = undefined;
@@ -166,6 +169,11 @@ export class MapkitMutant extends LayerBase {
 			L.Util.cancelAnimFrame(this._requestedFrame);
 
 			this._requestedFrame = L.Util.requestAnimFrame(function (this: any) {
+				this._requestedFrame = undefined;
+				if (!this._map || !this._mutantCanvas?.parentElement) {
+					return;
+				}
+
 				if (!this._canvasOverlay) {
 					this._canvasOverlay = L.imageOverlay(null as any, bounds);
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { L, mapkitMutant, makeMapStub } from "./helpers";
+import { L, MapRectStub, mapkitMutant, makeMapStub } from "./helpers";
 
 describe("MapkitMutant public API", () => {
 	it("registers the L.mapkitMutant factory and L.MapkitMutant class", () => {
@@ -109,6 +109,47 @@ describe("layer lifecycle (onAdd / onRemove)", () => {
 
 		layer.onAdd(map); // must build a fresh mutant, not reuse the stale one
 		expect(layer._mutant).not.toBe(firstMutant);
+	});
+
+	it("cancels and ignores a queued region-change frame after remove", () => {
+		const layer = mapkitMutant();
+		const map = makeMapStub();
+		layer.onAdd(map);
+
+		const canvas = document.createElement("canvas");
+		canvas.className = "syrup-canvas";
+		layer._mutantContainer.appendChild(canvas);
+		layer._mutant.visibleMapRect = new MapRectStub(0, 0, 1, 1);
+
+		let queuedFrame:
+			| {
+					callback: FrameRequestCallback;
+					context: unknown;
+			  }
+			| undefined;
+		const requestAnimFrame = vi
+			.spyOn(L.Util, "requestAnimFrame")
+			.mockImplementation(((cb: FrameRequestCallback, context: unknown) => {
+				queuedFrame = { callback: cb, context };
+				return 123;
+			}) as typeof L.Util.requestAnimFrame);
+		const cancelAnimFrame = vi
+			.spyOn(L.Util, "cancelAnimFrame")
+			.mockImplementation(() => {});
+
+		layer._onRegionChangeEnd();
+		expect(queuedFrame?.callback).toBeTypeOf("function");
+
+		layer.onRemove(map);
+
+		expect(cancelAnimFrame).toHaveBeenCalledWith(123);
+		expect(() =>
+			queuedFrame?.callback.call(queuedFrame?.context, 0)
+		).not.toThrow();
+		expect(layer._canvasOverlay).toBeUndefined();
+
+		requestAnimFrame.mockRestore();
+		cancelAnimFrame.mockRestore();
 	});
 });
 
