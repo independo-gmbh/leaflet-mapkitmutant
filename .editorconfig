@@ -12,10 +12,10 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-# Specific settings for TypeScript files
+# Specific settings for TypeScript files (matches Prettier: tabs, width 4)
 [*.ts]
-indent_style = space
-indent_size = 2
+indent_style = tab
+indent_size = 4
 
 # Specific settings for JSON files
 [*.json]
