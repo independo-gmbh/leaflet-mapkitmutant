@@ -39,10 +39,12 @@
     "provenance": true
   },
   "scripts": {
-    "format": "prettier \"src/**/*.ts\" --write",
-    "format:check": "prettier \"src/**/*.ts\" --check",
-    "lint": "eslint . && prettier \"src/**/*.ts\" --check",
+    "format": "prettier \"{src,test}/**/*.ts\" --write",
+    "format:check": "prettier \"{src,test}/**/*.ts\" --check",
+    "lint": "eslint . && prettier \"{src,test}/**/*.ts\" --check",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "build": "tsup && cp src/Leaflet.MapkitMutant.d.ts dist/Leaflet.MapkitMutant.d.ts",
     "prepublishOnly": "pnpm run build"
   },
@@ -64,12 +66,14 @@
     "conventional-changelog-conventionalcommits": "^9.1.0",
     "eslint": "^10.7.0",
     "eslint-config-prettier": "^10.1.8",
+    "jsdom": "^29.1.1",
     "mapkit-typescript": "^5.18.2",
     "prettier": "^3.9.5",
     "semantic-release": "^25.0.7",
     "tsup": "^8.5.1",
     "typescript": "^5.6.2",
-    "typescript-eslint": "^8.64.0"
+    "typescript-eslint": "^8.64.0",
+    "vitest": "^4.1.10"
   },
   "peerDependencies": {
     "leaflet": "^1.9.4"
