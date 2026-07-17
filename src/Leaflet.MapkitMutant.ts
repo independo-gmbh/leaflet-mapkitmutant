@@ -1,60 +1,9 @@
-/**
- * Default options forwarded to the MapKit JS `mapkit.Map` constructor. These
- * are merged with (and can be overridden by) the layer's `mapkitOptions`.
- */
-const _defaultMapkitOptions = {
-	/** Whether the map displays a control that lets users pan the map. */
-	showsUserLocationControl: false,
+import * as L from "leaflet";
+import { defaultMapkitOptions } from "./defaultMapkitOptions";
+import { leafletBoundsToMapkitRect, mapkitRectToLeafletBounds } from "./projection";
 
-	/**
-	 * Feature visibility setting that determines when the compass is visible.
-	 * @defaultValue `mapkit.FeatureVisibility.Hidden`
-	 */
-	showsCompass: mapkit.FeatureVisibility.Hidden,
-
-	/**
-	 * Whether to display a control that lets users choose the map type.
-	 * @defaultValue false
-	 */
-	showsMapTypeControl: false,
-
-	/**
-	 * MapKit JS map type. Valid values are:
-	 * - `mapkit.Map.MapTypes.Standard` — a street map showing roads and some names.
-	 * - `mapkit.Map.MapTypes.MutedStandard` — a street map with your data emphasized.
-	 * - `mapkit.Map.MapTypes.Hybrid` — satellite imagery with roads layered on top.
-	 * - `mapkit.Map.MapTypes.Satellite` — satellite imagery.
-	 * @defaultValue `mapkit.Map.MapTypes.Standard`
-	 */
-	mapType: mapkit.Map.MapTypes.Standard,
-
-	/**
-	 * The map's color scheme when displaying standard or muted standard map
-	 * types. Valid values are `"light"` and `"dark"`.
-	 */
-	colorScheme: "light",
-
-	/**
-	 * Whether the user may rotate the map using the compass control or a rotate
-	 * gesture.
-	 * @defaultValue false
-	 */
-	isRotationEnabled: false,
-
-	/** Feature visibility setting that determines when the map's scale is shown. */
-	showsScale: mapkit.FeatureVisibility.Hidden,
-
-	/**
-	 * Whether to show the user's location on the map.
-	 * @defaultValue false
-	 */
-	showsUserLocation: false,
-
-	/** Whether to show the zoom control. */
-	showsZoomControl: false,
-};
-
-(L as any).MapkitMutant = L.Layer.extend({
+// Register on the runtime global `L` (the imported namespace is read-only).
+(globalThis as any).L.MapkitMutant = L.Layer.extend({
 	options: {
 		/**
 		 * Minimum zoom level at which the MapKit basemap is displayed.
@@ -168,7 +117,7 @@ const _defaultMapkitOptions = {
 	_initMutant: function () {
 		if (!this._mutantContainer) return;
 		const mapConfig = {
-			..._defaultMapkitOptions,
+			...defaultMapkitOptions,
 			...this.options.mapkitOptions,
 			visibleMapRect: this._leafletBoundsToMapkitRect(),
 		};
@@ -185,74 +134,23 @@ const _defaultMapkitOptions = {
 	},
 
 	/**
-	 * Fetches the map's current projected (EPSG:3857) bounds and returns them as
-	 * a `mapkit.MapRect`.
+	 * Fetches the map's current projected (EPSG:3857) bounds as a
+	 * `mapkit.MapRect`, reusing this instance's cached rect.
 	 * @returns The current viewport as a MapKit MapRect.
 	 */
 	_leafletBoundsToMapkitRect: function () {
-		const bounds = this._map.getPixelBounds();
-		const scale = this._map.options.crs.scale(this._map.getZoom());
-
-		const nw = bounds.getTopLeft().divideBy(scale);
-		const se = bounds.getBottomRight().divideBy(scale);
-
-		// Map those bounds into a [[0,0]..[1,1]] range.
-		const projectedBounds = L.bounds([nw, se]);
-
-		const projectedCenter = projectedBounds.getCenter();
-		const projectedSize = projectedBounds.getSize();
-
-		if (!this._mapRect) {
-			this._mapRect = new mapkit.MapRect(
-				projectedCenter.x - projectedSize.x / 2,
-				projectedCenter.y - projectedSize.y / 2,
-				projectedSize.x,
-				projectedSize.y
-			);
-		} else {
-			this._mapRect.origin.x = projectedCenter.x - projectedSize.x / 2;
-			this._mapRect.origin.y = projectedCenter.y - projectedSize.y / 2;
-			this._mapRect.size.width = projectedSize.x;
-			this._mapRect.size.height = projectedSize.y;
-		}
+		this._mapRect = leafletBoundsToMapkitRect(this._map, this._mapRect);
 		return this._mapRect;
 	},
 
 	/**
-	 * Converts a `mapkit.MapRect` into `L.LatLngBounds`. The result is shifted by
-	 * multiples of 360° so it contains the current map center, which prevents
-	 * artifacts when crossing the antimeridian.
+	 * Converts a `mapkit.MapRect` into `L.LatLngBounds`, shifted to contain the
+	 * current map center (see {@link mapkitRectToLeafletBounds}).
 	 * @param rect - The MapKit MapRect to convert.
 	 * @returns The equivalent Leaflet bounds.
 	 */
 	_mapkitRectToLeafletBounds: function (rect: mapkit.MapRect) {
-		let offset;
-		// Ask MapkitJS to provide the lat-lng coords of the rect's corners.
-		const nw = new mapkit.MapPoint(rect.minX(), rect.maxY()).toCoordinate();
-		const se = new mapkit.MapPoint(rect.maxX(), rect.minY()).toCoordinate();
-
-		let lw = nw.longitude + Math.floor(rect.minX()) * 360;
-		let le = se.longitude + Math.floor(rect.maxX()) * 360;
-
-		const centerLng = this._map.getCenter().lng;
-
-		// Shift the bounding box on the easting axis so it contains the map center.
-		if (centerLng < lw) {
-			// Shift the whole thing to the west.
-			offset = Math.floor((centerLng - lw) / 360) * 360;
-			lw += offset;
-			le += offset;
-		} else if (centerLng > le) {
-			// Shift the whole thing to the east.
-			offset = Math.ceil((centerLng - le) / 360) * 360;
-			lw += offset;
-			le += offset;
-		}
-
-		return L.latLngBounds([
-			L.latLng(nw.latitude, lw),
-			L.latLng(se.latitude, le),
-		]);
+		return mapkitRectToLeafletBounds(rect, this._map.getCenter().lng);
 	},
 
 	/** Repositions the mutant to match the Leaflet map's current view. */
@@ -369,6 +267,6 @@ const _defaultMapkitOptions = {
  * Creates a {@link MapkitMutant} layer.
  * @param options - Layer and MapKit JS options.
  */
-(L as any).mapkitMutant = function mapkitMutant(options: any) {
-	return new (L as any).MapkitMutant(options);
+(globalThis as any).L.mapkitMutant = function mapkitMutant(options: any) {
+	return new (globalThis as any).L.MapkitMutant(options);
 };

@@ -1,4 +1,23 @@
-import { defineConfig } from "tsup";
+import { defineConfig, type Options } from "tsup";
+
+/**
+ * Resolve `import ... from "leaflet"` to the page's global `L` instead of
+ * bundling Leaflet. Leaflet is a peer dependency loaded via a <script> tag, so
+ * the plugin must share that single instance (and not ship its own copy).
+ */
+const leafletAsGlobal: NonNullable<Options["esbuildPlugins"]>[number] = {
+	name: "leaflet-as-global",
+	setup(build) {
+		build.onResolve({ filter: /^leaflet$/ }, () => ({
+			path: "leaflet",
+			namespace: "leaflet-global",
+		}));
+		build.onLoad({ filter: /.*/, namespace: "leaflet-global" }, () => ({
+			contents: "module.exports = globalThis.L;",
+			loader: "js",
+		}));
+	},
+};
 
 export default defineConfig({
 	entry: ["src/Leaflet.MapkitMutant.ts"],
@@ -11,8 +30,8 @@ export default defineConfig({
 	minify: true,
 	sourcemap: true,
 	clean: true,
-	// The source references global `L` and `mapkit` (loaded via <script>). It has
-	// no imports, so there is nothing to bundle — this just transpiles + minifies.
+	esbuildPlugins: [leafletAsGlobal],
+	// `mapkit` is referenced as an ambient global (also loaded via <script>).
 	// Declarations are hand-authored in src/*.d.ts and copied in the build script,
 	// so tsup does not generate them.
 	dts: false,
