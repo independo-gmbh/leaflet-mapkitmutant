@@ -47,6 +47,27 @@ describe("listener lifecycle", () => {
 	});
 });
 
+describe("re-adding a removed layer", () => {
+	it("clears mutant state on remove and rebuilds it on re-add", () => {
+		const layer = mapkitMutant();
+		const map = makeMapStub();
+		layer.onAdd(map);
+		const firstMutant = layer._mutant;
+		// Simulate the canvas/overlay the layer acquires once tiles render.
+		layer._mutantCanvas = document.createElement("canvas");
+		layer._canvasOverlay = { remove: () => {} };
+
+		layer.onRemove(map);
+
+		expect(layer._mutant).toBeUndefined();
+		expect(layer._mutantCanvas).toBeUndefined();
+		expect(layer._canvasOverlay).toBeUndefined();
+
+		layer.onAdd(map); // must build a fresh mutant, not reuse the stale one
+		expect(layer._mutant).not.toBe(firstMutant);
+	});
+});
+
 describe("_resize", () => {
 	it("skips resizing the container when the map size is unchanged", () => {
 		const layer = mapkitMutant();

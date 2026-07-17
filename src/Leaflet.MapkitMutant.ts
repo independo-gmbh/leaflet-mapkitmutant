@@ -145,6 +145,12 @@ const _defaultMapkitOptions = {
 		if (this._canvasOverlay) {
 			this._canvasOverlay.remove();
 		}
+
+		// Drop references to the torn-down mutant so a later onAdd() rebuilds
+		// from scratch instead of reusing a detached canvas/overlay.
+		this._mutant = undefined;
+		this._mutantCanvas = undefined;
+		this._canvasOverlay = undefined;
 	},
 
 	// Create the HTMLElement for the mutant map, and add it as a children
