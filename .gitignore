@@ -1,4 +1,9 @@
 *~
 node_modules
 .idea
-.dist
+dist
+.DS_Store
+*.log
+
+# Local manual-testing scratch file
+example.html

@@ -1,0 +1,3 @@
+# Allow esbuild (used by tsup) to run its install/build script.
+allowBuilds:
+  esbuild: true

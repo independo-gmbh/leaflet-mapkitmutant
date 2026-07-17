@@ -24,25 +24,27 @@
     "url": "git+https://github.com/independo-gmbh/leaflet.mapkitmutant.git"
   },
   "bugs": {
-    "url": "https://github.com/independo-gmbh/leaflet.mapkitmutant.git/issues"
+    "url": "https://github.com/independo-gmbh/leaflet.mapkitmutant/issues"
   },
+  "packageManager": "pnpm@11.13.1",
+  "engines": {
+    "node": ">=24"
+  },
+  "files": [
+    "dist"
+  ],
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
     "access": "public",
     "provenance": true
   },
   "scripts": {
-    "lintfix": "prettier **.ts --write",
-    "lint": "prettier **.ts --check",
-    "build": "webpack",
-    "prepublishOnly": "npm run build"
-  },
-  "prettier": {
-    "printWidth": 85,
-    "tabWidth": 4,
-    "useTabs": true,
-    "trailingComma": "es5",
-    "arrowParens": "always"
+    "format": "prettier \"src/**/*.ts\" --write",
+    "format:check": "prettier \"src/**/*.ts\" --check",
+    "lint": "eslint . && prettier \"src/**/*.ts\" --check",
+    "typecheck": "tsc --noEmit",
+    "build": "tsup && cp src/Leaflet.MapkitMutant.d.ts dist/Leaflet.MapkitMutant.d.ts",
+    "prepublishOnly": "pnpm run build"
   },
   "keywords": [
     "map",
@@ -50,19 +52,24 @@
     "mapkit"
   ],
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@saithodev/semantic-release-backmerge": "^4.0.1",
     "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/git": "^10.0.1",
-    "@semantic-release/release-notes-generator": "^14.0.1",
+    "@semantic-release/github": "^12.0.9",
+    "@semantic-release/npm": "^13.1.5",
+    "@semantic-release/release-notes-generator": "^14.1.1",
     "@types/leaflet": "^1.9.4",
     "conventional-changelog-conventionalcommits": "^9.1.0",
+    "eslint": "^10.7.0",
+    "eslint-config-prettier": "^10.1.8",
     "mapkit-typescript": "^5.18.2",
-    "prettier": "^3.3.3",
-    "terser-webpack-plugin": "^5.3.10",
-    "ts-loader": "^9.5.1",
+    "prettier": "^3.9.5",
+    "semantic-release": "^25.0.7",
+    "tsup": "^8.5.1",
     "typescript": "^5.6.2",
-    "webpack": "^5.94.0",
-    "webpack-cli": "^6.0.1"
+    "typescript-eslint": "^8.64.0"
   },
   "peerDependencies": {
     "leaflet": "^1.9.4"

@@ -59,7 +59,7 @@ const _defaultMapkitOptions = {
 	showsZoomControl: false,
 };
 
-var _mapRect: mapkit.MapRect | null = null;
+let _mapRect: mapkit.MapRect | null = null;
 
 (L as any).MapkitMutant = L.Layer.extend({
 	options: {
@@ -122,7 +122,7 @@ var _mapRect: mapkit.MapRect | null = null;
 		});
 	},
 
-	onAdd: function (map) {
+	onAdd: function (map: L.Map) {
 		this._map = map;
 
 		this._initMutantContainer();
@@ -134,8 +134,8 @@ var _mapRect: mapkit.MapRect | null = null;
 		this._resize();
 	},
 
-	onRemove: function (map) {
-		map._container.removeChild(this._mutantContainer);
+	onRemove: function (map: L.Map) {
+		(map as any)._container.removeChild(this._mutantContainer);
 		this._mutantContainer = undefined;
 		map.off("move zoom moveend zoomend", this._update, this);
 		map.off("resize", this._resize, this);
@@ -275,7 +275,7 @@ var _mapRect: mapkit.MapRect | null = null;
 		if (!this._mutant) return;
 	},
 
-	_onRegionChangeEnd: function (ev) {
+	_onRegionChangeEnd: function () {
 		// console.log(ev.target.region.toString());
 
 		if (!this._mutantCanvas) {
@@ -299,9 +299,9 @@ var _mapRect: mapkit.MapRect | null = null;
 
 			L.Util.cancelAnimFrame(this._requestedFrame);
 
-			this._requestedFrame = L.Util.requestAnimFrame(function () {
+			this._requestedFrame = L.Util.requestAnimFrame(function (this: any) {
 				if (!this._canvasOverlay) {
-					this._canvasOverlay = L.imageOverlay(null, bounds);
+					this._canvasOverlay = L.imageOverlay(null as any, bounds);
 
 					// Hack the ImageOverlay's _image property so that it doesn't
 					// create a HTMLImageElement
@@ -356,17 +356,17 @@ var _mapRect: mapkit.MapRect | null = null;
 		}
 	},
 
-	_onRegionChangeStart: function (ev) {
+	_onRegionChangeStart: function () {
 		/// TODO: check if there's any use to this event handler, clean up
 		//         console.timeStamp('region-change-start');
 	},
 
-	setElementSize: function (e, size) {
+	setElementSize: function (e: HTMLElement, size: L.Point) {
 		e.style.width = size.x + "px";
 		e.style.height = size.y + "px";
 	},
 });
 
-(L as any).mapkitMutant = function mapkitMutant(options) {
+(L as any).mapkitMutant = function mapkitMutant(options: any) {
 	return new (L as any).MapkitMutant(options);
 };
