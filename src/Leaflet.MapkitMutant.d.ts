@@ -1,77 +1,75 @@
-import L from "leaflet";
+import * as L from "leaflet";
 
-export interface MapkitMutantOptions extends L.LayerOptions {
-	/**
-	 * @inheritDoc L.LayerOptions
-	 */
-	minZoom: number;
-	/**
-	 * @inheritDoc L.LayerOptions
-	 */
-	maxZoom: number;
-	/**
-	 *   MapKit JS map type. Valid values are strings 'standard' (default),
-	 *   'satellite' or 'hybrid'.
-	 *   @default 'standard'
-	 *   @type {String}
-	 */
-	type: "standard" | "satellite" | "hybrid" | "muted";
-	/**
-	 *  An authorization callback function, as described in Apple's MapKit JS documentation (https://developer.apple.com/documentation/mapkitjs/mapkit/2974045-init).
-	 *  @type {Function} authorizationCallback
-	 *  @default null
-	 */
-	authorizationCallback: () => void;
-	/**
-	 * A language code, as described in Apple's MapKit JS documentation (https://developer.apple.com/documentation/mapkitjs/mapkit/2974045-init).
-	 * By default, Mapkit will use the locale setting from the web browser.
-	 * @type {String}
-	 */
-	language?: string;
-	/**
-	 * The opacity of the MapkitMutant.
-	 * @type {Number}
-	 * @default 1.0
-	 */
-	opacity: number;
-}
-
-declare namespace leaflet {
-	export class MapkitMutant extends L.Layer {
+/**
+ * Type definitions for the Leaflet.MapkitMutant plugin.
+ *
+ * The plugin augments Leaflet's `L` namespace at runtime, so these declarations
+ * augment the `leaflet` module — importing the package makes `L.mapkitMutant`,
+ * `L.MapkitMutant` and `L.MapkitMutantOptions` available to TypeScript.
+ */
+declare module "leaflet" {
+	interface MapkitMutantOptions extends L.LayerOptions {
 		/**
-		 * @inheritDoc L.Layer.onAdd
-		 * @param map
+		 * Minimum zoom level at which the MapKit basemap is displayed.
+		 * @defaultValue 3
 		 */
-		onAdd(map: L.Map): this;
+		minZoom?: number;
 
 		/**
-		 * @inheritDoc L.Layer.onRemove
-		 * @param map
+		 * Maximum zoom level at which the MapKit basemap is displayed.
+		 * @defaultValue 23
 		 */
-		onRemove(map: L.Map): this;
+		maxZoom?: number;
 
-		setOpacity(opacity: number): this;
+		/**
+		 * Options passed verbatim to the MapKit JS `mapkit.Map` constructor,
+		 * such as `mapType`, `colorScheme` or `pointOfInterestFilter`.
+		 * @see https://developer.apple.com/documentation/mapkitjs/mapconstructoroptions
+		 */
+		mapkitOptions?: Record<string, unknown>;
 
-		private _initMutantContainer(): void;
+		/**
+		 * MapKit JS authorization callback. Invoke the provided `done` callback
+		 * with a valid MapKit JS token.
+		 * @see https://developer.apple.com/documentation/mapkitjs/mapkit/2974045-init
+		 */
+		authorizationCallback?: (done: (token: string) => void) => void;
 
-		private _initMutant(): void;
+		/**
+		 * A BCP-47 language code. Defaults to the browser's locale when omitted.
+		 */
+		language?: string;
 
-		private _leafletBoundsToMapkitRect(): mapkit.MapRect;
+		/**
+		 * Opacity of the MapkitMutant layer, from 0 to 1.
+		 * @defaultValue 1
+		 */
+		opacity?: number;
 
-		private _mapkitRectToLeafletBounds(rect: mapkit.MapRect): L.LatLngBounds;
-
-		private _update(): void;
-
-		private _resize(): void;
-
-		private _onRegionChangeEnd(): void;
-
-		private _onRegionChangeStart(): void;
-
-		private _updateOpacity(): void;
-
-		private setElementSize(e: HTMLElement, size: L.Point): void;
+		/**
+		 * Whether to draw a rectangle around the mutant's bounds. Intended for
+		 * debugging, most useful at low zoom levels.
+		 * @defaultValue false
+		 */
+		debugRectangle?: boolean;
 	}
 
-	export function mapkitMutant(options: MapkitMutantOptions): MapkitMutant;
+	/**
+	 * A Leaflet layer that renders Apple MapKit JS tiles as a basemap.
+	 */
+	class MapkitMutant extends L.Layer {
+		constructor(options?: MapkitMutantOptions);
+
+		/**
+		 * Sets the opacity of the MapkitMutant.
+		 * @param opacity - The new opacity value, from 0 to 1.
+		 */
+		setOpacity(opacity: number): this;
+	}
+
+	/**
+	 * Creates a {@link MapkitMutant} layer.
+	 * @param options - Layer and MapKit JS options.
+	 */
+	function mapkitMutant(options?: MapkitMutantOptions): MapkitMutant;
 }
