@@ -87,7 +87,7 @@ function makeMapkitStub() {
 (globalThis as any).L = L;
 (globalThis as any).mapkit = makeMapkitStub();
 
-await import("../src/Leaflet.MapkitMutant.ts");
+await import("../src/index.ts");
 
 // The plugin schedules async frame callbacks; make them deterministic no-ops so
 // tests don't race against requestAnimationFrame.

@@ -20,7 +20,9 @@ const leafletAsGlobal: NonNullable<Options["esbuildPlugins"]>[number] = {
 };
 
 export default defineConfig({
-	entry: ["src/Leaflet.MapkitMutant.ts"],
+	// Object form pins the output basename to Leaflet.MapkitMutant.js (the public
+	// unpkg URL) even though the entry module is index.ts.
+	entry: { "Leaflet.MapkitMutant": "src/index.ts" },
 	outDir: "dist",
 	platform: "browser",
 	format: ["iife"],
