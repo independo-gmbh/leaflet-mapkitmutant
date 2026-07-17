@@ -5,17 +5,17 @@
       "esnext"
     ],
     "module": "esnext",
-    "target": "es5",
+    "moduleResolution": "bundler",
+    "target": "es2019",
     "rootDir": "src",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "inlineSources": true,
     "outDir": "./dist",
-    "allowJs": true,
     "pretty": true,
     "sourceMap": true,
-    "strict": false,
+    "strict": true,
     "typeRoots": [
       "./node_modules/mapkit-typescript",
       "./node_modules/@types"
