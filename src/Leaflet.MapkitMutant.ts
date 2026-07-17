@@ -59,8 +59,6 @@ const _defaultMapkitOptions = {
 	showsZoomControl: false,
 };
 
-let _mapRect: mapkit.MapRect | null = null;
-
 (L as any).MapkitMutant = L.Layer.extend({
 	options: {
 		/**
@@ -179,7 +177,6 @@ let _mapRect: mapkit.MapRect | null = null;
 		const map = new mapkit.Map(this._mutantContainer, mapConfig);
 		this._mutant = map;
 		map.addEventListener("region-change-end", this._onRegionChangeEnd, this);
-		map.addEventListener("region-change-start", this._onRegionChangeStart, this);
 
 		// 🍂event spawned
 		// Fired when the mutant has been created.
@@ -205,20 +202,20 @@ let _mapRect: mapkit.MapRect | null = null;
 		const projectedCenter = projectedBounds.getCenter();
 		const projectedSize = projectedBounds.getSize();
 
-		if (!_mapRect) {
-			_mapRect = new mapkit.MapRect(
+		if (!this._mapRect) {
+			this._mapRect = new mapkit.MapRect(
 				projectedCenter.x - projectedSize.x / 2,
 				projectedCenter.y - projectedSize.y / 2,
 				projectedSize.x,
 				projectedSize.y
 			);
 		} else {
-			_mapRect.origin.x = projectedCenter.x - projectedSize.x / 2;
-			_mapRect.origin.y = projectedCenter.y - projectedSize.y / 2;
-			_mapRect.size.width = projectedSize.x;
-			_mapRect.size.height = projectedSize.y;
+			this._mapRect.origin.x = projectedCenter.x - projectedSize.x / 2;
+			this._mapRect.origin.y = projectedCenter.y - projectedSize.y / 2;
+			this._mapRect.size.width = projectedSize.x;
+			this._mapRect.size.height = projectedSize.y;
 		}
-		return _mapRect;
+		return this._mapRect;
 	},
 
 	// Given an instance of mapkit.MapRect, returns an instance of L.LatLngBounds
@@ -266,13 +263,13 @@ let _mapRect: mapkit.MapRect | null = null;
 
 	_resize: function () {
 		const size = this._map.getSize();
+		const container = this._mutantContainer;
 		if (
-			this._mutantContainer.style.width === size.x &&
-			this._mutantContainer.style.height === size.y
+			parseInt(container.style.width, 10) === size.x &&
+			parseInt(container.style.height, 10) === size.y
 		)
 			return;
-		this.setElementSize(this._mutantContainer, size);
-		if (!this._mutant) return;
+		this.setElementSize(container, size);
 	},
 
 	_onRegionChangeEnd: function () {
@@ -354,11 +351,6 @@ let _mapRect: mapkit.MapRect | null = null;
 		if (this._mutantCanvas) {
 			L.DomUtil.setOpacity(this._mutantCanvas, this.options.opacity);
 		}
-	},
-
-	_onRegionChangeStart: function () {
-		/// TODO: check if there's any use to this event handler, clean up
-		//         console.timeStamp('region-change-start');
 	},
 
 	setElementSize: function (e: HTMLElement, size: L.Point) {
