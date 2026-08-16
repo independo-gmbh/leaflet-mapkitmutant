@@ -17,8 +17,12 @@
     "sourceMap": true,
     "strict": true,
     "typeRoots": [
-      "./node_modules/mapkit-typescript",
+      "./node_modules",
       "./node_modules/@types"
+    ],
+    "types": [
+      "mapkit-typescript",
+      "leaflet"
     ]
   },
   "include": [
