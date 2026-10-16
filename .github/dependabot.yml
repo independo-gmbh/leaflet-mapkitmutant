@@ -5,9 +5,29 @@ updates:
     target-branch: "dev"
     schedule:
       interval: "weekly"
+    groups:
+      # Batch routine bumps into one PR; majors still get their own PR and
+      # security updates are unaffected by grouping.
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # typescript-eslint does not support TypeScript 7 yet (peer: <6.1.0).
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      # 10.x yields empty release notes with the current
+      # @semantic-release/release-notes-generator (see 45dbc52).
+      - dependency-name: "conventional-changelog-conventionalcommits"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/.github/workflows"
     target-branch: "dev"
     schedule:
       interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
