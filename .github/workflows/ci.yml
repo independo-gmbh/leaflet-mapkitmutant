@@ -8,11 +8,18 @@ on:
     branches:
       - '**'
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    name: "Lint & Typecheck"
+    name: "Lint, Typecheck & Test"
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6.1.0
@@ -23,6 +30,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run lint
       - run: pnpm run typecheck
+      - run: pnpm run test
 
   build:
     runs-on: ubuntu-latest
@@ -41,6 +49,9 @@ jobs:
       - run: pnpm run build
 
   publish:
+    # Releases only happen from pushes to main/dev; skip on pull requests so
+    # the elevated token and OIDC permissions are never granted to PR runs.
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write # to be able to publish a GitHub release
